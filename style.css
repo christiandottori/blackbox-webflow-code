@@ -251,14 +251,22 @@ body.intro-done .hero__scroll{opacity:1}
   .xcard__checks{grid-template-columns:1fr}
 }
 
-.work__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;grid-auto-rows:1fr}
-.tile{position:relative;border-radius:var(--r);overflow:hidden;border:1px solid var(--line-soft);aspect-ratio:1;
-  display:flex;flex-direction:column;justify-content:space-between;padding:20px 22px;transition:transform .5s var(--ease),border-color .5s}
-.tile--feature{grid-column:span 2;grid-row:span 2;aspect-ratio:auto}
-.tile:hover{transform:translateY(-4px);border-color:var(--line)}
-.tile::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.5),transparent 60%);z-index:0}
-.tile>*{position:relative;z-index:1}
-.tile>a{position:absolute;inset:0;z-index:2}
+.work__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.tile{position:relative;display:flex;flex-direction:column;border-radius:18px;overflow:hidden;background:var(--bg-2);
+  border:1px solid var(--line-soft);transition:transform .4s var(--ease),border-color .4s}
+.tile--feature{grid-column:span 2;grid-row:span 2}
+.tile:hover{transform:translateY(-6px);border-color:var(--line)}
+.tile>a{position:absolute;inset:0;z-index:3}
+.tile>a::after{content:"↗";position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;
+  background:rgba(0,0,0,.55);backdrop-filter:blur(6px);color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:.85rem;opacity:0;transform:translateY(-4px);transition:opacity .3s,transform .3s}
+.tile:hover>a::after{opacity:1;transform:none}
+.tile img{width:100%;aspect-ratio:1;object-fit:cover;display:block;filter:grayscale(1) brightness(.75) contrast(1.05);
+  transition:transform .7s var(--ease),filter .5s}
+.tile:hover img{transform:scale(1.05);filter:grayscale(0) brightness(.92) contrast(1.05)}
+.tile .tag{position:absolute;top:14px;left:14px;z-index:2;margin:0;background:rgba(6,6,7,.7);backdrop-filter:blur(6px)}
+.tile .tag+p{padding:16px 16px 2px;margin:0;font-family:var(--ff-d);font-weight:500;font-size:1rem;color:#fff}
+.tile .tag+p+p{padding:0 16px 18px;margin:0;color:var(--muted-d);font-size:.82rem}
 .ph{background:#0e0e12}
 .ph--1{background:radial-gradient(120% 120% at 20% 0%,#2a0a0e,#0b0b0f 60%)}
 .ph--2{background:radial-gradient(120% 120% at 80% 10%,#1a1030,#0b0b0f 60%)}
