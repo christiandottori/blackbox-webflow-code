@@ -1,0 +1,732 @@
+/* ====================================================================
+   BlackBox — main.js  (v4: blocco studio a tab + configuratore pop-up)
+   ==================================================================== */
+(function () {
+  'use strict';
+  const html = document.documentElement;
+  const body = document.body;
+  if (location.search.indexOf('flat') !== -1) html.classList.add('flat');
+
+  /* year */
+  const y = document.getElementById('year');
+  if (y) y.textContent = new Date().getFullYear();
+
+  /* language */
+  const langToggle = document.getElementById('langToggle');
+  function applyLang(lang) {
+    body.setAttribute('data-lang', lang);
+    html.lang = lang;
+    document.querySelectorAll('[data-it][data-en]').forEach(el => {
+      const t = el.getAttribute('data-' + lang);
+      if (t !== null) el.textContent = t;
+    });
+    try { localStorage.setItem('bb-lang', lang); } catch (e) {}
+    if (typeof moveInk === 'function') moveInk();
+  }
+  let lang = 'it';
+  try { lang = localStorage.getItem('bb-lang') || 'it'; } catch (e) {}
+  applyLang(lang);
+  if (langToggle) langToggle.addEventListener('click', () => applyLang(body.getAttribute('data-lang') === 'it' ? 'en' : 'it'));
+
+  /* hero video: guarantee playback */
+  const video = document.getElementById('heroVideo');
+  if (video) {
+    video.muted = true; video.playsInline = true;
+    const tryPlay = () => { const p = video.play(); if (p && p.catch) p.catch(() => {}); };
+    tryPlay();
+    ['touchstart', 'click', 'scroll', 'keydown'].forEach(ev => window.addEventListener(ev, tryPlay, { once: true, passive: true }));
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? tryPlay() : video.pause())).observe(video);
+    }
+  }
+
+  /* ---------- hero: profondità reattiva al mouse (overlay/grana/bagliore molto leggeri) ---------- */
+  const heroEl = document.getElementById('hero');
+  if (heroEl && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    let hx = 50, hy = 40, tx = 50, ty = 40;
+    window.addEventListener('pointermove', (e) => {
+      const r = heroEl.getBoundingClientRect();
+      if (e.clientY > r.bottom) return;
+      tx = ((e.clientX - r.left) / r.width) * 100;
+      ty = ((e.clientY - r.top) / r.height) * 100;
+    }, { passive: true });
+    (function tickHero() {
+      hx += (tx - hx) * 0.05;
+      hy += (ty - hy) * 0.05;
+      heroEl.style.setProperty('--hx', hx.toFixed(2) + '%');
+      heroEl.style.setProperty('--hy', hy.toFixed(2) + '%');
+      requestAnimationFrame(tickHero);
+    })();
+  }
+
+  /* ---------- marquee "Lavoriamo con": scorrimento automatico + trascinabile (mouse e touch) ---------- */
+  (function () {
+    const wrap = document.querySelector('.marquee');
+    const track = document.querySelector('.marquee__track');
+    if (!wrap || !track) return;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const DURATION_MS = 52000; /* stesso ritmo di prima per un giro completo */
+
+    let setWidth = 0;
+    function measure() { setWidth = track.scrollWidth / 2; }
+    measure();
+    window.addEventListener('resize', measure);
+
+    let offset = 0;
+    let dragging = false;
+    let dragStartX = 0;
+    let dragStartOffset = 0;
+    let lastTime = null;
+
+    function wrapOffset() {
+      if (setWidth <= 0) return;
+      offset = ((offset % setWidth) + setWidth) % setWidth;
+    }
+    function apply() {
+      track.style.transform = 'translateX(' + (-offset) + 'px)';
+    }
+    function frame(t) {
+      if (!dragging && !reduceMotion && setWidth > 0) {
+        if (lastTime !== null) offset += (setWidth / DURATION_MS) * (t - lastTime);
+        wrapOffset();
+        apply();
+      }
+      lastTime = t;
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+    wrap.addEventListener('pointerdown', (e) => {
+      dragging = true;
+      dragStartX = e.clientX;
+      dragStartOffset = offset;
+      try { wrap.setPointerCapture(e.pointerId); } catch (err) {}
+    });
+    wrap.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      offset = dragStartOffset - (e.clientX - dragStartX);
+      wrapOffset();
+      apply();
+    });
+    function endDrag(e) {
+      if (!dragging) return;
+      dragging = false;
+      try { wrap.releasePointerCapture(e.pointerId); } catch (err) {}
+    }
+    wrap.addEventListener('pointerup', endDrag);
+    wrap.addEventListener('pointercancel', endDrag);
+    wrap.addEventListener('pointerleave', (e) => { if (dragging) endDrag(e); });
+  })();
+
+  /* ---------- intro (Netflix-style reveal) ---------- */
+  const intro = document.getElementById('intro');
+  function introDone() { body.classList.add('intro-done'); }
+  if (html.classList.contains('no-intro') || !intro || location.search.indexOf('noanim') !== -1) {
+    if (intro) intro.style.display = 'none';
+    introDone();
+  } else {
+    const startIntro = () => {
+      intro.classList.add('fonts-ready');
+      requestAnimationFrame(() => requestAnimationFrame(() => intro.classList.add('play')));
+    };
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(startIntro).catch(startIntro);
+      setTimeout(startIntro, 1200);
+    } else {
+      startIntro();
+    }
+    let done = false;
+    const finish = () => {
+      if (done) return; done = true;
+      intro.style.display = 'none';
+      introDone();
+      try { sessionStorage.setItem('bb-intro', '1'); } catch (e) {}
+    };
+    intro.addEventListener('animationend', (e) => { if (e.animationName === 'introReveal') finish(); });
+    setTimeout(finish, 5200);
+  }
+
+  /* nav scroll state + progress */
+  const navWrap = document.getElementById('nav');
+  const navInner = document.querySelector('.nav');
+  const progress = document.querySelector('.scroll-progress');
+  let maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  function updateMaxScroll() { maxScroll = document.documentElement.scrollHeight - window.innerHeight; }
+  window.addEventListener('resize', updateMaxScroll, { passive: true });
+  window.addEventListener('load', updateMaxScroll);
+  function onScroll() {
+    const sc = window.scrollY;
+    if (navWrap) navWrap.classList.toggle('scrolled', sc > 30);
+    if (progress) progress.style.width = (maxScroll > 0 ? (sc / maxScroll) * 100 : 0) + '%';
+    scrollTicking = false;
+  }
+  let scrollTicking = false;
+  window.addEventListener('scroll', () => {
+    if (!scrollTicking) {
+      requestAnimationFrame(onScroll);
+      scrollTicking = true;
+    }
+  }, { passive: true });
+  onScroll();
+
+  /* mobile menu */
+  const burger = document.getElementById('burger');
+  const navLinks = document.getElementById('navLinks');
+  if (burger && navLinks) {
+    burger.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+      navInner && navInner.classList.toggle('open');
+    });
+  }
+
+  /* ---------- blocco studio a tab (Servizi / Metodo / Studio) ---------- */
+  const tabsWrap = document.querySelector('.tabs');
+  const tabBtns = tabsWrap ? Array.prototype.slice.call(tabsWrap.querySelectorAll('.tab')) : [];
+  const panes = Array.prototype.slice.call(document.querySelectorAll('.pane'));
+  function moveInk() {
+    const tw = document.querySelector('.tabs');
+    if (!tw) return;
+    const ik = tw.querySelector('.tabs__ink');
+    const on = tw.querySelector('.tab.is-on');
+    if (!ik || !on) return;
+    ik.style.width = on.offsetWidth + 'px';
+    ik.style.transform = 'translateX(' + on.offsetLeft + 'px)';
+  }
+  function selectTab(name) {
+    let found = false;
+    tabBtns.forEach(b => {
+      const on = b.dataset.tab === name;
+      b.classList.toggle('is-on', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+      if (on) found = true;
+    });
+    if (!found) return;
+    panes.forEach(p => { p.hidden = p.dataset.pane !== name; });
+    moveInk();
+  }
+  if (tabBtns.length) {
+    tabBtns.forEach((b, i) => {
+      b.addEventListener('click', () => selectTab(b.dataset.tab));
+      b.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          const dir = e.key === 'ArrowRight' ? 1 : -1;
+          const next = tabBtns[(i + dir + tabBtns.length) % tabBtns.length];
+          next.focus(); selectTab(next.dataset.tab);
+        }
+      });
+    });
+    window.addEventListener('resize', moveInk);
+    window.addEventListener('load', () => setTimeout(moveInk, 120));
+    setTimeout(moveInk, 60);
+  }
+
+  /* ---------- accordion premium "Cosa facciamo" ---------- */
+  const servicesCards = document.getElementById('servicesCards');
+  if (servicesCards) {
+    const xcardEls = Array.from(servicesCards.querySelectorAll('.xcard'));
+    xcardEls.forEach(card => {
+      const trigger = card.querySelector('.xcard__trigger');
+      if (!trigger) return;
+      trigger.addEventListener('click', () => {
+        const wasOpen = card.classList.contains('is-open');
+        xcardEls.forEach(c => {
+          c.classList.remove('is-open');
+          const t = c.querySelector('.xcard__trigger');
+          if (t) t.setAttribute('aria-expanded', 'false');
+        });
+        if (!wasOpen) {
+          card.classList.add('is-open');
+          trigger.setAttribute('aria-expanded', 'true');
+          servicesCards.classList.add('has-open');
+        } else {
+          servicesCards.classList.remove('has-open');
+        }
+      });
+    });
+  }
+
+  /* ---------- timeline "Come lavoriamo" (8 step) ---------- */
+  const processTimeline = document.getElementById('processTimeline');
+  if (processTimeline) {
+    const tlDots = Array.from(processTimeline.querySelectorAll('.tl__item'));
+    const tlPanels = Array.from(processTimeline.querySelectorAll('.tl__panel'));
+    const tlFill = document.getElementById('tlFill');
+    let tlIndex = 0;
+    let tlTimer = null;
+
+    function selectStep(i) {
+      if (i < 0 || i >= tlDots.length) return;
+      tlIndex = i;
+      tlDots.forEach((d, di) => {
+        const on = di === i;
+        d.classList.toggle('is-on', on);
+        d.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      tlPanels.forEach(p => {
+        p.classList.toggle('is-on', Number(p.dataset.step) === i);
+      });
+      if (tlFill) tlFill.style.height = ((i / (tlDots.length - 1)) * 100) + '%';
+      const activeItem = tlDots[i];
+      if (activeItem && activeItem.scrollIntoView) {
+        activeItem.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+    }
+
+    function stopAuto() { if (tlTimer) { clearInterval(tlTimer); tlTimer = null; } }
+    function startAuto() {
+      stopAuto();
+      tlTimer = setInterval(() => { selectStep((tlIndex + 1) % tlDots.length); }, 6000);
+    }
+
+    tlDots.forEach((d, i) => {
+      d.addEventListener('click', () => { selectStep(i); stopAuto(); });
+      d.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          const dir = (e.key === 'ArrowRight' || e.key === 'ArrowDown') ? 1 : -1;
+          const next = tlDots[(i + dir + tlDots.length) % tlDots.length];
+          next.focus();
+          selectStep((i + dir + tlDots.length) % tlDots.length);
+          stopAuto();
+        }
+      });
+    });
+
+    processTimeline.addEventListener('pointerenter', stopAuto);
+    processTimeline.addEventListener('pointerleave', startAuto);
+
+    selectStep(0);
+    startAuto();
+
+    const tlIO = new IntersectionObserver((entries) => {
+      entries.forEach(en => { if (!en.isIntersecting) stopAuto(); else startAuto(); });
+    }, { threshold: .2 });
+    tlIO.observe(processTimeline);
+  }
+
+  /* ---------- globo 3D "Dove operiamo" (rotazione automatica + trascinabile) ---------- */
+  (function () {
+    const canvas = document.getElementById('globeCanvas');
+    if (!canvas || !canvas.getContext) return;
+    const gctx = canvas.getContext('2d');
+    const gdpr = Math.min(window.devicePixelRatio || 1, 2);
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const comoLabel = document.getElementById('globeLabelComo');
+
+    let dragging = false;
+    let dragStartX = 0, dragStartAngle = 0;
+    canvas.addEventListener('pointerdown', (e) => {
+      dragging = true;
+      dragStartX = e.clientX;
+      dragStartAngle = angle;
+      try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+    });
+    canvas.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      angle = dragStartAngle + (e.clientX - dragStartX) * 0.008;
+    });
+    function endGlobeDrag(e) {
+      if (!dragging) return;
+      dragging = false;
+      try { canvas.releasePointerCapture(e.pointerId); } catch (err) {}
+    }
+    canvas.addEventListener('pointerup', endGlobeDrag);
+    canvas.addEventListener('pointercancel', endGlobeDrag);
+    canvas.addEventListener('pointerleave', (e) => { if (dragging) endGlobeDrag(e); });
+
+    function latLonToXYZ(lat, lon) {
+      const la = lat * Math.PI / 180, lo = lon * Math.PI / 180;
+      return { x: Math.cos(la) * Math.sin(lo), y: -Math.sin(la), z: Math.cos(la) * Math.cos(lo) };
+    }
+    function rotY(p, a) {
+      const c = Math.cos(a), s = Math.sin(a);
+      return { x: p.x * c + p.z * s, y: p.y, z: -p.x * s + p.z * c };
+    }
+    /* inclinazione fissa della visuale: porta il 42° parallelo Nord (zona Como) al centro
+       della fascia visibile, invece dell'equatore */
+    const CAMERA_TILT = -42 * Math.PI / 180;
+    function rotX(p, a) {
+      const c = Math.cos(a), s = Math.sin(a);
+      return { x: p.x, y: p.y * c - p.z * s, z: p.y * s + p.z * c };
+    }
+    function view(p, a) {
+      return rotX(rotY(p, a), CAMERA_TILT);
+    }
+
+    function fibonacciSphere(n) {
+      const pts = [];
+      const gAngle = Math.PI * (3 - Math.sqrt(5));
+      for (let i = 0; i < n; i++) {
+        const y = 1 - (i / (n - 1)) * 2;
+        const r = Math.sqrt(Math.max(0, 1 - y * y));
+        const theta = gAngle * i;
+        pts.push({ x: Math.cos(theta) * r, y: y, z: Math.sin(theta) * r });
+      }
+      return pts;
+    }
+    const surfacePts = fibonacciSphere(90); /* texture leggerissima della sfera, sotto i contorni */
+
+    /* contorni reali dei continenti, caricati al volo (bassa risoluzione, non appesantisce il codice incollato) */
+    let continentRings = [];
+    function processRing(ring) {
+      if (ring.length < 20) return null;
+      /* esclude l'Antartide: irrilevante qui e la sua sagoma vicino al polo genera scarabocchi */
+      let latSum = 0;
+      for (let i = 0; i < ring.length; i++) latSum += ring[i][1];
+      if (latSum / ring.length < -60) return null;
+      const step = ring.length > 150 ? 4 : ring.length > 60 ? 2 : 1;
+      const raw = [];
+      for (let i = 0; i < ring.length; i += step) raw.push(latLonToXYZ(ring[i][1], ring[i][0]));
+      raw.push(raw[0]);
+      /* spezza il percorso dove il salto tra due punti è troppo ampio, invece di tracciare
+         una corda dritta attraverso il globo (evita l'effetto "scarabocchio") */
+      const paths = [];
+      let current = [raw[0]];
+      for (let i = 1; i < raw.length; i++) {
+        const dot = raw[i - 1].x * raw[i].x + raw[i - 1].y * raw[i].y + raw[i - 1].z * raw[i].z;
+        if (dot < 0.94) {
+          if (current.length > 1) paths.push(current);
+          current = [raw[i]];
+        } else {
+          current.push(raw[i]);
+        }
+      }
+      if (current.length > 1) paths.push(current);
+      return paths.length ? paths : null;
+    }
+    fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson')
+      .then(function (r) { return r.json(); })
+      .then(function (geo) {
+        const rings = [];
+        function addPaths(paths) { if (paths) paths.forEach(function (p) { rings.push(p); }); }
+        geo.features.forEach(function (f) {
+          const g = f.geometry;
+          if (!g) return;
+          if (g.type === 'Polygon') {
+            addPaths(processRing(g.coordinates[0]));
+          } else if (g.type === 'MultiPolygon') {
+            g.coordinates.forEach(function (poly) { addPaths(processRing(poly[0])); });
+          }
+        });
+        continentRings = rings;
+      })
+      .catch(function () {}); /* se il caricamento fallisce il globo resta comunque funzionante */
+
+    const hubXYZ = latLonToXYZ(45.85, 9.0);
+    const markers = [
+      Object.assign(latLonToXYZ(45.81, 9.08), { local: true }),
+      Object.assign(latLonToXYZ(45.46, 9.19), { local: true }),
+      Object.assign(latLonToXYZ(46.19, 8.79), { local: true }),
+      Object.assign(latLonToXYZ(40.71, -74.0), { local: false }),
+      Object.assign(latLonToXYZ(35.68, 139.69), { local: false }),
+      Object.assign(latLonToXYZ(-33.87, 151.21), { local: false }),
+      Object.assign(latLonToXYZ(25.2, 55.27), { local: false })
+    ];
+
+    /* etichetta olografica: ciclo tra alcune località, non solo Como */
+    const labelCycle = [
+      { i: 0, it: 'Sede — Como', en: 'HQ — Como' },
+      { i: 1, it: 'Produzione — Milano', en: 'Production — Milan' },
+      { i: 6, it: 'Nuovo progetto — Dubai', en: 'New project — Dubai' },
+      { i: 4, it: 'Meeting online — Tokyo', en: 'Online meeting — Tokyo' }
+    ];
+    let labelIdx = 0;
+    function setLabelText() {
+      if (!comoLabel) return;
+      const cur = labelCycle[labelIdx];
+      const l = document.body.getAttribute('data-lang') || 'it';
+      comoLabel.textContent = l === 'en' ? cur.en : cur.it;
+    }
+    setLabelText();
+    setInterval(() => { labelIdx = (labelIdx + 1) % labelCycle.length; setLabelText(); }, 5500);
+
+    let angle = 0;
+    let gw = 0, gh = 0;
+    function resizeGlobe() {
+      const rect = canvas.getBoundingClientRect();
+      gw = canvas.width = Math.round(rect.width * gdpr);
+      gh = canvas.height = Math.round(rect.height * gdpr);
+    }
+    resizeGlobe();
+    window.addEventListener('resize', resizeGlobe);
+
+    function project(p, cx, cy, R, persp) {
+      const f = persp / (persp - p.z);
+      return { sx: cx + p.x * R * f, sy: cy + p.y * R * f, z: p.z };
+    }
+
+    function drawGlobe() {
+      if (!gw || !gh) { resizeGlobe(); requestAnimationFrame(drawGlobe); return; }
+      const cx = gw / 2, cy = gh / 2;
+      const R = Math.min(gw, gh) / 2 * 0.82;
+      const persp = 2.6;
+      gctx.clearRect(0, 0, gw, gh);
+
+      gctx.beginPath();
+      gctx.arc(cx, cy, R, 0, Math.PI * 2);
+      gctx.strokeStyle = 'rgba(255,255,255,.06)';
+      gctx.lineWidth = gdpr;
+      gctx.stroke();
+
+      /* texture leggerissima della sfera (sotto i contorni) */
+      const rotatedSurface = surfacePts.map(p => project(view(p, angle), cx, cy, R, persp));
+      rotatedSurface.forEach(p => {
+        const depthT = (p.z + 1) / 2;
+        if (depthT < 0.08) return;
+        gctx.beginPath();
+        gctx.arc(p.sx, p.sy, (0.4 + depthT * 0.5) * gdpr, 0, Math.PI * 2);
+        gctx.fillStyle = 'rgba(200,200,210,' + (0.03 + depthT * 0.09) + ')';
+        gctx.fill();
+      });
+
+      /* contorni dei continenti, a linea (percorsi aperti, nessuna chiusura forzata) */
+      continentRings.forEach(path => {
+        const proj = path.map(p => project(view(p, angle), cx, cy, R, persp));
+        for (let i = 0; i < proj.length - 1; i++) {
+          const a = proj[i], b = proj[i + 1];
+          const avgZ = (a.z + b.z) / 2;
+          if (avgZ < -0.05) continue;
+          const depthT = (avgZ + 1) / 2;
+          gctx.beginPath();
+          gctx.moveTo(a.sx, a.sy);
+          gctx.lineTo(b.sx, b.sy);
+          gctx.strokeStyle = 'rgba(228,228,234,' + (0.14 + depthT * 0.56) + ')';
+          gctx.lineWidth = (0.7 + depthT * 0.7) * gdpr;
+          gctx.stroke();
+        }
+      });
+
+      const hubP = project(view(hubXYZ, angle), cx, cy, R, persp);
+      const projMarkers = markers.map(m => ({ local: m.local, p: project(view(m, angle), cx, cy, R, persp) }));
+
+      projMarkers.filter(m => !m.local).forEach(m => {
+        const depth = ((hubP.z + 1) / 2 + (m.p.z + 1) / 2) / 2;
+        if (depth < 0.28) return;
+        gctx.beginPath();
+        gctx.moveTo(hubP.sx, hubP.sy);
+        gctx.lineTo(m.p.sx, m.p.sy);
+        gctx.strokeStyle = 'rgba(255,42,42,' + (depth * 0.35) + ')';
+        gctx.lineWidth = gdpr;
+        gctx.stroke();
+      });
+
+      const t = performance.now() / 1000;
+      projMarkers.forEach((m, i) => {
+        const depthT = (m.p.z + 1) / 2;
+        if (depthT < 0.12) return;
+        const pulse = 0.6 + Math.sin(t * 1.6 + i) * 0.4;
+        const baseR = (m.local ? 2.4 : 1.7) * gdpr;
+        const glowR = baseR * (2.4 + pulse * 1.2);
+        const grad = gctx.createRadialGradient(m.p.sx, m.p.sy, 0, m.p.sx, m.p.sy, glowR);
+        grad.addColorStop(0, 'rgba(255,42,42,' + (0.5 * depthT) + ')');
+        grad.addColorStop(1, 'rgba(255,42,42,0)');
+        gctx.beginPath();
+        gctx.arc(m.p.sx, m.p.sy, glowR, 0, Math.PI * 2);
+        gctx.fillStyle = grad;
+        gctx.fill();
+        gctx.beginPath();
+        gctx.arc(m.p.sx, m.p.sy, baseR, 0, Math.PI * 2);
+        gctx.fillStyle = 'rgba(255,80,80,' + (0.6 + depthT * 0.4) + ')';
+        gctx.fill();
+        if (i === labelCycle[labelIdx].i && comoLabel) {
+          /* etichetta olografica che segue il marker attivo sulla superficie del globo */
+          comoLabel.style.left = (m.p.sx / gdpr) + 'px';
+          comoLabel.style.top = (m.p.sy / gdpr) + 'px';
+          comoLabel.style.opacity = depthT < 0.35 ? '0' : String(Math.min(1, (depthT - 0.35) * 2.2));
+        }
+      });
+
+      if (!reduceMotion && !dragging) angle += 0.0016;
+      requestAnimationFrame(drawGlobe);
+    }
+    requestAnimationFrame(drawGlobe);
+  })();
+
+  /* anchor links → scroll animato (ease-out: parte subito, rallenta in fondo) */
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+  let scrollAnimId = null;
+  function cancelScrollAnim() {
+    if (scrollAnimId !== null) { cancelAnimationFrame(scrollAnimId); scrollAnimId = null; }
+  }
+  /* qualsiasi input umano (rotella, touch, click, tastiera) interrompe subito l'animazione */
+  ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach(ev => window.addEventListener(ev, cancelScrollAnim, { passive: true, capture: true }));
+  function smoothScrollTo(target, duration) {
+    cancelScrollAnim();
+    const offset = parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
+    const startY = window.scrollY;
+    const targetY = startY + target.getBoundingClientRect().top - offset;
+    /* rivela subito (senza animazione) tutto ciò che l'animazione sta per attraversare,
+       cosi non parte un fade-in "in blocco" quando si arriva */
+    const lo = Math.min(startY, targetY) - innerHeight;
+    const hi = Math.max(startY, targetY) + innerHeight;
+    document.querySelectorAll('.reveal:not(.in)').forEach(el => {
+      const elY = el.getBoundingClientRect().top + startY;
+      if (elY >= lo && elY <= hi) el.classList.add('in');
+    });
+    const diff = targetY - startY;
+    const startTime = performance.now();
+    let lastSet = startY;
+    function step(now) {
+      /* rete di sicurezza: se la posizione reale non coincide più con quella impostata
+         all'ultimo fotogramma (per qualunque causa, anche non intercettata sopra),
+         vuol dire che l'utente ha ripreso il controllo: molliamo subito */
+      if (Math.abs(window.scrollY - lastSet) > 2) { scrollAnimId = null; return; }
+      const progress = Math.min((now - startTime) / duration, 1);
+      lastSet = startY + diff * easeOutCubic(progress);
+      window.scrollTo({ top: lastSet, left: 0, behavior: 'instant' });
+      scrollAnimId = progress < 1 ? requestAnimationFrame(step) : null;
+    }
+    scrollAnimId = requestAnimationFrame(step);
+  }
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      const id = a.getAttribute('href');
+      if (id.length < 2) return;
+      const t = document.querySelector(id);
+      if (!t) return;
+      e.preventDefault();
+      navLinks && navLinks.classList.remove('open');
+      navInner && navInner.classList.remove('open');
+      if (a.dataset.tab) selectTab(a.dataset.tab);
+      smoothScrollTo(t, 550);
+    });
+  });
+
+  /* reveal on scroll (gentle fade-ins) */
+  const revealEls = document.querySelectorAll('.reveal');
+  if (location.search.indexOf('noanim') !== -1) {
+    revealEls.forEach(el => el.classList.add('in'));
+    introDone();
+  } else {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    revealEls.forEach(el => io.observe(el));
+    window.addEventListener('load', () => setTimeout(() => {
+      revealEls.forEach(el => { if (el.getBoundingClientRect().top < innerHeight) el.classList.add('in'); });
+      moveInk();
+    }, 300));
+    setTimeout(() => revealEls.forEach(el => el.classList.add('in')), 4500);
+  }
+
+  /* ---------- cookie banner ---------- */
+  const cookie = document.getElementById('cookie');
+  const cookieOk = document.getElementById('cookieOk');
+  let consent = null;
+  try { consent = localStorage.getItem('bb-cookie'); } catch (e) {}
+  if (cookie && !consent) { cookie.hidden = false; body.classList.add('cookie-open'); }
+  if (cookieOk) cookieOk.addEventListener('click', () => {
+    try { localStorage.setItem('bb-cookie', '1'); } catch (e) {}
+    if (cookie) cookie.hidden = true;
+    body.classList.remove('cookie-open');
+  });
+
+  const form = document.getElementById('contactForm');
+
+  /* ---------- configuratore pop-up (open/close) ---------- */
+  const cfg = document.getElementById('cfg');
+  const cfgFab = document.getElementById('cfgFab');
+  const cfgClose = document.getElementById('cfgClose');
+  function openCfg() {
+    if (!cfg) return;
+    cfg.classList.add('open'); cfg.setAttribute('aria-hidden', 'false');
+    if (cfgFab) { cfgFab.classList.add('hide'); cfgFab.setAttribute('aria-expanded', 'true'); }
+  }
+  function closeCfg() {
+    if (!cfg) return;
+    cfg.classList.remove('open'); cfg.setAttribute('aria-hidden', 'true');
+    if (cfgFab) { cfgFab.classList.remove('hide'); cfgFab.setAttribute('aria-expanded', 'false'); }
+  }
+  if (cfgFab) cfgFab.addEventListener('click', openCfg);
+  if (cfgClose) cfgClose.addEventListener('click', closeCfg);
+  document.querySelectorAll('[data-open-cfg]').forEach(b => b.addEventListener('click', openCfg));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && cfg && cfg.classList.contains('open')) closeCfg(); });
+
+  /* ---------- mini quiz (dentro il configuratore) ---------- */
+  const quizBox = document.getElementById('quizBox');
+  if (quizBox) {
+    const steps = quizBox.querySelectorAll('.quiz__step');
+    const result = quizBox.querySelector('.quiz__result');
+    const bar = document.getElementById('quizBar');
+    const recTitle = document.getElementById('quizRec');
+    const recText = document.getElementById('quizRecText');
+    const restart = document.getElementById('quizRestart');
+    const quizCta = document.getElementById('quizCta');
+    const answers = [];
+    let pkg = 'Pro';
+
+    function show(i) {
+      steps.forEach((s, idx) => { s.hidden = idx !== i; });
+      result.hidden = true;
+      if (bar) bar.style.width = (((i + 1) / steps.length) * 100) + '%';
+    }
+    function finish() {
+      steps.forEach(s => { s.hidden = true; });
+      result.hidden = false;
+      if (bar) bar.style.width = '100%';
+      const isIt = body.getAttribute('data-lang') === 'it';
+      const need = answers[0] || '', sector = answers[1] || '', goal = answers[2] || '';
+      if (recTitle) recTitle.textContent = (isIt ? 'Pacchetto ' : 'Package ') + pkg;
+      if (recText) recText.textContent = isIt
+        ? `Per ${need} nel settore ${sector}, con l'obiettivo di ${goal.toLowerCase()}, il pacchetto ${pkg} è il punto di partenza ideale. Scrivici e ti prepariamo un assaggio su misura.`
+        : `For ${need} in ${sector}, aiming to ${goal.toLowerCase()}, the ${pkg} package is the ideal starting point. Get in touch and we'll craft a tailored preview.`;
+      const ta = form ? form.querySelector('textarea[name="message"]') : null;
+      if (ta) ta.value = isIt
+        ? `Ciao BlackBox! Mi interessa: ${need} (settore ${sector}). Obiettivo: ${goal}. Pacchetto d'interesse: ${pkg}.`
+        : `Hi BlackBox! I'm interested in: ${need} (${sector}). Goal: ${goal}. Package: ${pkg}.`;
+    }
+    steps.forEach((step, i) => {
+      step.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+        answers[i] = b.textContent.trim();
+        if (i === 0 && b.dataset.pkg) pkg = b.dataset.pkg;
+        if (i < steps.length - 1) show(i + 1); else finish();
+      }));
+    });
+    if (restart) restart.addEventListener('click', () => { answers.length = 0; pkg = 'Pro'; show(0); });
+    if (quizCta) quizCta.addEventListener('click', () => { setTimeout(closeCfg, 200); });
+    show(0);
+  }
+
+  /* ---------- cinematic dust (subtle, scroll-parallax) ---------- */
+  const dust = document.getElementById('dust');
+  if (dust && dust.getContext && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const ctx = dust.getContext('2d');
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const mobile = window.matchMedia('(max-width:720px)').matches;
+    let w, h, P = [], sy = 0, t = 0;
+    function build() {
+      w = dust.width = innerWidth * dpr;
+      h = dust.height = innerHeight * dpr;
+      dust.style.width = innerWidth + 'px';
+      dust.style.height = innerHeight + 'px';
+      const n = mobile ? 26 : 62;
+      P = [];
+      for (let i = 0; i < n; i++) P.push({
+        x: Math.random() * w, y: Math.random() * h,
+        r: (Math.random() * 1.3 + 0.3) * dpr,
+        a: Math.random() * 0.3 + 0.05,
+        depth: Math.random() * 0.4 + 0.1,
+        ph: Math.random() * 6.28, sp: Math.random() * 0.4 + 0.2
+      });
+    }
+    build();
+    window.addEventListener('resize', build);
+    window.addEventListener('scroll', () => { sy = window.scrollY; }, { passive: true });
+    (function draw() {
+      t += 0.005;
+      ctx.clearRect(0, 0, w, h);
+      ctx.globalCompositeOperation = 'source-over';
+      for (const p of P) {
+        let yy = p.y - sy * dpr * p.depth * 0.25 + Math.sin(t * p.sp + p.ph) * 8 * dpr;
+        yy = ((yy % h) + h) % h;
+        const xx = p.x + Math.cos(t * p.sp * 0.7 + p.ph) * 6 * dpr;
+        ctx.beginPath();
+        ctx.arc(xx, yy, p.r, 0, 6.2832);
+        ctx.fillStyle = 'rgba(255,255,255,' + (p.a * 0.75) + ')';
+        ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    })();
+  }
+})();
