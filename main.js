@@ -221,37 +221,12 @@
     setTimeout(moveInk, 60);
   }
 
-  /* ---------- accordion premium "Cosa facciamo" ---------- */
-  const servicesCards = document.getElementById('servicesCards');
-  if (servicesCards) {
-    const xcardEls = Array.from(servicesCards.querySelectorAll('.xcard'));
-    xcardEls.forEach(card => {
-      const trigger = card.querySelector('.xcard__trigger');
-      if (!trigger) return;
-      trigger.addEventListener('click', () => {
-        const wasOpen = card.classList.contains('is-open');
-        xcardEls.forEach(c => {
-          c.classList.remove('is-open');
-          const t = c.querySelector('.xcard__trigger');
-          if (t) t.setAttribute('aria-expanded', 'false');
-        });
-        if (!wasOpen) {
-          card.classList.add('is-open');
-          trigger.setAttribute('aria-expanded', 'true');
-          servicesCards.classList.add('has-open');
-        } else {
-          servicesCards.classList.remove('has-open');
-        }
-      });
-    });
-  }
-
-  /* ---------- timeline "Come lavoriamo" (8 step) ---------- */
-  const processTimeline = document.getElementById('processTimeline');
-  if (processTimeline) {
-    const tlDots = Array.from(processTimeline.querySelectorAll('.tl__item'));
-    const tlPanels = Array.from(processTimeline.querySelectorAll('.tl__panel'));
-    const tlFill = document.getElementById('tlFill');
+  /* ---------- rail a selezione (usata da "Cosa facciamo" e "Come lavoriamo") ---------- */
+  function initRail(container) {
+    if (!container) return;
+    const tlDots = Array.from(container.querySelectorAll('.tl__item'));
+    const tlPanels = Array.from(container.querySelectorAll('.tl__panel'));
+    const tlFill = container.querySelector('.tl__rail-fill');
     let tlIndex = 0;
     let tlTimer = null;
 
@@ -293,8 +268,8 @@
       });
     });
 
-    processTimeline.addEventListener('pointerenter', stopAuto);
-    processTimeline.addEventListener('pointerleave', startAuto);
+    container.addEventListener('pointerenter', stopAuto);
+    container.addEventListener('pointerleave', startAuto);
 
     selectStep(0);
     startAuto();
@@ -302,8 +277,11 @@
     const tlIO = new IntersectionObserver((entries) => {
       entries.forEach(en => { if (!en.isIntersecting) stopAuto(); else startAuto(); });
     }, { threshold: .2 });
-    tlIO.observe(processTimeline);
+    tlIO.observe(container);
   }
+
+  initRail(document.getElementById('servicesTimeline'));
+  initRail(document.getElementById('processTimeline'));
 
   /* ---------- globo 3D "Dove operiamo" (rotazione automatica + trascinabile) ---------- */
   (function () {
