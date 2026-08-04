@@ -590,7 +590,7 @@ body.intro-done .hero__scroll{opacity:1}
 /* ====================================================================
    FAQ
    ==================================================================== */
-.faq__list{max-width:840px;border-top:1px solid var(--line)}
+.faq__list{border-top:1px solid var(--line)}
 .faq__item{border-bottom:1px solid var(--line)}
 .faq__item summary{list-style:none;cursor:pointer;padding:22px 42px 22px 0;position:relative;font-family:var(--ff-brand);font-weight:500;font-size:1.12rem;color:#fff;transition:color .3s}
 .faq__item summary::-webkit-details-marker{display:none}
