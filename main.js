@@ -227,6 +227,7 @@
     const tlDots = Array.from(container.querySelectorAll('.tl__item'));
     const tlPanels = Array.from(container.querySelectorAll('.tl__panel'));
     const tlFill = container.querySelector('.tl__rail-fill');
+    const railEl = container.querySelector('.tl__rail');
     let tlIndex = 0;
     let tlTimer = null;
 
@@ -243,8 +244,13 @@
       });
       if (tlFill) tlFill.style.height = ((i / (tlDots.length - 1)) * 100) + '%';
       const activeItem = tlDots[i];
-      if (activeItem && activeItem.scrollIntoView) {
-        activeItem.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      if (activeItem && railEl) {
+        const railRect = railEl.getBoundingClientRect();
+        const itemRect = activeItem.getBoundingClientRect();
+        const itemCenterOffset = (itemRect.left - railRect.left) + itemRect.width / 2;
+        let target = railEl.scrollLeft + (itemCenterOffset - railRect.width / 2);
+        target = Math.max(0, Math.min(target, railEl.scrollWidth - railEl.clientWidth));
+        railEl.scrollTo({ left: target, behavior: 'smooth' });
       }
     }
 
