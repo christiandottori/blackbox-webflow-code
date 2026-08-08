@@ -664,7 +664,7 @@ html.flat .hero{min-height:520px}
 .studio__lead{color:var(--muted);font-weight:300;font-size:1.14rem;line-height:1.7;max-width:620px}
 
 /* ====================================================================
-   V4 — CONFIGURATORE (FAB + finestra pop-up fixed in basso a destra)
+   CONFIGURATORE — scorciatoia fissa a #pacchetti
    ==================================================================== */
 .cfg-fab{position:fixed;right:20px;bottom:20px;z-index:160;display:inline-flex;align-items:center;gap:9px;
   padding:13px 20px 13px 16px;border-radius:100px;font-family:var(--ff-d);font-weight:500;font-size:.9rem;color:#fff;
@@ -672,35 +672,8 @@ html.flat .hero{min-height:520px}
   transition:transform .35s var(--ease),box-shadow .35s,opacity .3s}
 .cfg-fab svg{width:20px;height:20px}
 .cfg-fab:hover{transform:translateY(-3px);box-shadow:0 20px 52px var(--red-glow)}
-.cfg-fab.hide{opacity:0;transform:translateY(24px) scale(.9);pointer-events:none}
-
-.cfg{position:fixed;right:20px;bottom:20px;z-index:170;width:min(384px,calc(100vw - 40px));
-  background:rgba(13,13,16,.96);border:1px solid var(--line);border-radius:20px;overflow:hidden;
-  backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%);
-  box-shadow:0 30px 80px rgba(0,0,0,.6);transform-origin:bottom right;
-  transform:translateY(24px) scale(.96);opacity:0;pointer-events:none;
-  transition:transform .4s var(--ease),opacity .35s}
-.cfg.open{transform:none;opacity:1;pointer-events:auto}
-.cfg__head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 18px 15px;border-bottom:1px solid var(--line-soft)}
-.cfg__ey{font-family:var(--ff-d);text-transform:uppercase;letter-spacing:.16em;font-size:.62rem;color:var(--red);display:block;margin-bottom:5px}
-.cfg__title strong{font-family:var(--ff-d);font-weight:600;font-size:1.05rem;color:#fff}
-.cfg__close{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);color:var(--muted);display:grid;place-items:center;flex:none;transition:.3s}
-.cfg__close svg{width:16px;height:16px}
-.cfg__close:hover{color:#fff;border-color:var(--red);transform:rotate(90deg)}
-.cfg__body{padding:20px 18px}
-
-.cfg .quiz__box{min-height:158px}
-.cfg .quiz__q{font-size:1rem;margin-bottom:16px;text-align:left}
-.cfg .quiz__opts{justify-content:flex-start}
-.cfg .quiz__opts button{padding:10px 16px;font-size:.85rem}
-.cfg .quiz__result{align-items:flex-start;text-align:left}
-.cfg .quiz__rtitle{font-size:1.25rem}
-.cfg .quiz__rtext{font-size:.92rem}
-.cfg .quiz__bar{margin-top:18px}
-.cfg .quiz__result .btn{width:100%}
 
 body.cookie-open .cfg-fab{bottom:96px}
-body.cookie-open .cfg{bottom:96px}
 
 @media(max-width:480px){
   .cfg{right:10px;left:10px;bottom:10px;width:auto}

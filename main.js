@@ -1,5 +1,5 @@
 /* ====================================================================
-   BlackBox — main.js  (v4: blocco studio a tab + configuratore pop-up)
+   BlackBox — main.js  (v5: configuratore prezzi in Pacchetti, niente più pop-up quiz)
    ==================================================================== */
 (function () {
   'use strict';
@@ -607,70 +607,6 @@
   });
 
   const form = document.getElementById('contactForm');
-
-  /* ---------- configuratore pop-up (open/close) ---------- */
-  const cfg = document.getElementById('cfg');
-  const cfgFab = document.getElementById('cfgFab');
-  const cfgClose = document.getElementById('cfgClose');
-  function openCfg() {
-    if (!cfg) return;
-    cfg.classList.add('open'); cfg.setAttribute('aria-hidden', 'false');
-    if (cfgFab) { cfgFab.classList.add('hide'); cfgFab.setAttribute('aria-expanded', 'true'); }
-  }
-  function closeCfg() {
-    if (!cfg) return;
-    cfg.classList.remove('open'); cfg.setAttribute('aria-hidden', 'true');
-    if (cfgFab) { cfgFab.classList.remove('hide'); cfgFab.setAttribute('aria-expanded', 'false'); }
-  }
-  if (cfgFab) cfgFab.addEventListener('click', openCfg);
-  if (cfgClose) cfgClose.addEventListener('click', closeCfg);
-  document.querySelectorAll('[data-open-cfg]').forEach(b => b.addEventListener('click', openCfg));
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && cfg && cfg.classList.contains('open')) closeCfg(); });
-
-  /* ---------- mini quiz (dentro il configuratore) ---------- */
-  const quizBox = document.getElementById('quizBox');
-  if (quizBox) {
-    const steps = quizBox.querySelectorAll('.quiz__step');
-    const result = quizBox.querySelector('.quiz__result');
-    const bar = document.getElementById('quizBar');
-    const recTitle = document.getElementById('quizRec');
-    const recText = document.getElementById('quizRecText');
-    const restart = document.getElementById('quizRestart');
-    const quizCta = document.getElementById('quizCta');
-    const answers = [];
-    let pkg = 'Pro';
-
-    function show(i) {
-      steps.forEach((s, idx) => { s.hidden = idx !== i; });
-      result.hidden = true;
-      if (bar) bar.style.width = (((i + 1) / steps.length) * 100) + '%';
-    }
-    function finish() {
-      steps.forEach(s => { s.hidden = true; });
-      result.hidden = false;
-      if (bar) bar.style.width = '100%';
-      const isIt = body.getAttribute('data-lang') === 'it';
-      const need = answers[0] || '', sector = answers[1] || '', goal = answers[2] || '';
-      if (recTitle) recTitle.textContent = (isIt ? 'Pacchetto ' : 'Package ') + pkg;
-      if (recText) recText.textContent = isIt
-        ? `Per ${need} nel settore ${sector}, con l'obiettivo di ${goal.toLowerCase()}, il pacchetto ${pkg} è il punto di partenza ideale. Scrivici e ti prepariamo un assaggio su misura.`
-        : `For ${need} in ${sector}, aiming to ${goal.toLowerCase()}, the ${pkg} package is the ideal starting point. Get in touch and we'll craft a tailored preview.`;
-      const ta = form ? form.querySelector('textarea[name="message"]') : null;
-      if (ta) ta.value = isIt
-        ? `Ciao BlackBox! Mi interessa: ${need} (settore ${sector}). Obiettivo: ${goal}. Pacchetto d'interesse: ${pkg}.`
-        : `Hi BlackBox! I'm interested in: ${need} (${sector}). Goal: ${goal}. Package: ${pkg}.`;
-    }
-    steps.forEach((step, i) => {
-      step.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
-        answers[i] = b.textContent.trim();
-        if (i === 0 && b.dataset.pkg) pkg = b.dataset.pkg;
-        if (i < steps.length - 1) show(i + 1); else finish();
-      }));
-    });
-    if (restart) restart.addEventListener('click', () => { answers.length = 0; pkg = 'Pro'; show(0); });
-    if (quizCta) quizCta.addEventListener('click', () => { setTimeout(closeCfg, 200); });
-    show(0);
-  }
 
   /* ---------- cinematic dust (subtle, scroll-parallax) ---------- */
   const dust = document.getElementById('dust');
