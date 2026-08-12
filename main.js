@@ -28,15 +28,72 @@
   applyLang(lang);
   if (langToggle) langToggle.addEventListener('click', () => applyLang(body.getAttribute('data-lang') === 'it' ? 'en' : 'it'));
 
-  /* hero video: guarantee playback */
-  const video = document.getElementById('heroVideo');
+  /* hero video: guarantee playback (+ comando manuale se il browser blocca) */
+  const video = document.querySelector('.w-background-video video') || document.getElementById('heroVideo');
+  const heroSection = document.getElementById('hero');
   if (video) {
     video.muted = true; video.playsInline = true;
-    const tryPlay = () => { const p = video.play(); if (p && p.catch) p.catch(() => {}); };
-    tryPlay();
-    ['touchstart', 'click', 'scroll', 'keydown'].forEach(ev => window.addEventListener(ev, tryPlay, { once: true, passive: true }));
+    video.removeAttribute('autoplay');
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const ICON_PLAY = 'M8 5v14l11-7z';
+    const ICON_PAUSE = 'M6 5h4v14H6zM14 5h4v14h-4z';
+    let wanted = !reduced;   /* con "riduci animazioni" il video non riparte da solo */
+    let btn = null;
+
+    const tryPlay = () => {
+      if (!wanted) return;
+      const p = video.play();
+      if (p && p.catch) p.catch(() => showBtn());
+      if (p && p.then) p.then(paint);
+    };
+
+    function paint() {
+      if (!btn) return;
+      const playing = !video.paused;
+      btn.querySelector('path').setAttribute('d', playing ? ICON_PAUSE : ICON_PLAY);
+      const label = btn.querySelector('.bb-play__t');
+      const cur = body.getAttribute('data-lang') || 'it';
+      const it = playing ? 'Pausa' : 'Riproduci';
+      const en = playing ? 'Pause' : 'Play';
+      label.setAttribute('data-it', it);
+      label.setAttribute('data-en', en);
+      label.textContent = cur === 'en' ? en : it;
+      btn.setAttribute('aria-label', cur === 'en'
+        ? (playing ? 'Pause the background video' : 'Play the background video')
+        : (playing ? 'Metti in pausa il video di sfondo' : 'Riproduci il video di sfondo'));
+    }
+
+    function makeBtn() {
+      if (btn || !heroSection) return btn;
+      btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'bb-play';
+      btn.hidden = true;
+      btn.innerHTML =
+        '<span class="bb-play__ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="' + ICON_PLAY + '"/></svg></span>' +
+        '<span class="bb-play__t" data-it="Riproduci" data-en="Play">Riproduci</span>';
+      heroSection.appendChild(btn);
+      btn.addEventListener('click', () => {
+        if (video.paused) { wanted = true; tryPlay(); }
+        else { wanted = false; video.pause(); paint(); }
+      });
+      return btn;
+    }
+
+    function showBtn() { makeBtn(); if (btn) { btn.hidden = false; paint(); } }
+
+    if (reduced) showBtn(); else tryPlay();
+
+    video.addEventListener('play', paint);
+    video.addEventListener('pause', paint);
+
+    ['touchstart', 'click', 'keydown'].forEach(ev => window.addEventListener(ev, tryPlay, { once: true, passive: true }));
+
     if ('IntersectionObserver' in window) {
-      new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? tryPlay() : video.pause())).observe(video);
+      new IntersectionObserver(es => es.forEach(e => {
+        if (e.isIntersecting) tryPlay(); else video.pause();
+      })).observe(video);
     }
   }
 
