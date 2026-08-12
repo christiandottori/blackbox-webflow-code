@@ -28,65 +28,23 @@
   applyLang(lang);
   if (langToggle) langToggle.addEventListener('click', () => applyLang(body.getAttribute('data-lang') === 'it' ? 'en' : 'it'));
 
-  /* hero video: guarantee playback (+ comando manuale se il browser blocca) */
+  /* hero video: avvio da JS — nessun attributo autoplay (vedi embed A).
+     Con "riduci animazioni" il video resta fermo: lo spiega l'avviso .bb-rm. */
   const video = document.querySelector('.w-background-video video') || document.getElementById('heroVideo');
-  const heroSection = document.getElementById('hero');
   if (video) {
     video.muted = true; video.playsInline = true;
     video.removeAttribute('autoplay');
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const ICON_PLAY = 'M8 5v14l11-7z';
-    const ICON_PAUSE = 'M6 5h4v14H6zM14 5h4v14h-4z';
-    let wanted = !reduced;   /* con "riduci animazioni" il video non riparte da solo */
-    let btn = null;
+    let wanted = !reduced;
 
     const tryPlay = () => {
       if (!wanted) return;
       const p = video.play();
-      if (p && p.catch) p.catch(() => showBtn());
-      if (p && p.then) p.then(paint);
+      if (p && p.catch) p.catch(() => {});
     };
 
-    function paint() {
-      if (!btn) return;
-      const playing = !video.paused;
-      btn.querySelector('path').setAttribute('d', playing ? ICON_PAUSE : ICON_PLAY);
-      const label = btn.querySelector('.bb-play__t');
-      const cur = body.getAttribute('data-lang') || 'it';
-      const it = playing ? 'Pausa' : 'Riproduci';
-      const en = playing ? 'Pause' : 'Play';
-      label.setAttribute('data-it', it);
-      label.setAttribute('data-en', en);
-      label.textContent = cur === 'en' ? en : it;
-      btn.setAttribute('aria-label', cur === 'en'
-        ? (playing ? 'Pause the background video' : 'Play the background video')
-        : (playing ? 'Metti in pausa il video di sfondo' : 'Riproduci il video di sfondo'));
-    }
-
-    function makeBtn() {
-      if (btn || !heroSection) return btn;
-      btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'bb-play';
-      btn.hidden = true;
-      btn.innerHTML =
-        '<span class="bb-play__ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="' + ICON_PLAY + '"/></svg></span>' +
-        '<span class="bb-play__t" data-it="Riproduci" data-en="Play">Riproduci</span>';
-      heroSection.appendChild(btn);
-      btn.addEventListener('click', () => {
-        if (video.paused) { wanted = true; tryPlay(); }
-        else { wanted = false; video.pause(); paint(); }
-      });
-      return btn;
-    }
-
-    function showBtn() { makeBtn(); if (btn) { btn.hidden = false; paint(); } }
-
-    if (reduced) showBtn(); else tryPlay();
-
-    video.addEventListener('play', paint);
-    video.addEventListener('pause', paint);
+    tryPlay();
 
     ['touchstart', 'click', 'keydown'].forEach(ev => window.addEventListener(ev, tryPlay, { once: true, passive: true }));
 
@@ -202,6 +160,10 @@
     intro.addEventListener('animationend', (e) => { if (e.animationName === 'introReveal') finish(); });
     setTimeout(finish, 5200);
   }
+  /* La via di fuga inline dell'embed A legge questa bandiera. Sta QUI e non in cima:
+     in cima proverebbe solo che lo script e' partito, non che l'intro sa piu' chiudersi.
+     Se main.js esplode prima di questo punto, la bandiera non c'e' e il nero se ne va lo stesso. */
+  window.__bbMainAttivo = 1;
 
   /* nav scroll state + progress */
   const navWrap = document.getElementById('nav');
@@ -706,4 +668,51 @@
       requestAnimationFrame(draw);
     })();
   }
+
+  /* ---------- avviso "animazioni ridotte", appoggiato sopra .cfg-fab ---------- */
+  (function () {
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    try { if (sessionStorage.getItem('bb-rm-avviso') === '1') return; } catch (e) {}
+
+    const box = document.createElement('div');
+    box.className = 'bb-rm';
+    box.setAttribute('role', 'status');
+    box.innerHTML =
+      '<span class="bb-rm__t">' +
+        '<b data-it="Animazioni ridotte" data-en="Reduced motion">Animazioni ridotte</b>' +
+        '<span data-it="Il tuo dispositivo le sta limitando: il sito è mostrato statico." ' +
+              'data-en="Your device is limiting them: the site is shown static.">' +
+          'Il tuo dispositivo le sta limitando: il sito è mostrato statico.' +
+        '</span>' +
+      '</span>' +
+      '<button type="button" class="bb-rm__x" aria-label="Chiudi">×</button>';
+    document.body.appendChild(box);
+
+    /* la posizione si misura sulla FAB, non si indovina:
+       cosi' segue anche lo spostamento che le fa il banner cookie */
+    const fab = document.querySelector('.cfg-fab');
+    function posa() {
+      if (!fab) { box.style.setProperty('--bb-rm-bottom', '20px'); return; }
+      const r = fab.getBoundingClientRect();
+      box.style.setProperty('--bb-rm-bottom', Math.max(0, window.innerHeight - r.top) + 12 + 'px');
+    }
+    posa();
+    window.addEventListener('resize', posa, { passive: true });
+    if ('ResizeObserver' in window && fab) new ResizeObserver(posa).observe(fab);
+    if ('MutationObserver' in window) {
+      new MutationObserver(posa).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    box.querySelector('.bb-rm__x').addEventListener('click', () => {
+      box.hidden = true;
+      try { sessionStorage.setItem('bb-rm-avviso', '1'); } catch (e) {}
+    });
+
+    /* applyLang ha gia' girato prima che questo elemento esistesse: la lingua gliela diamo adesso */
+    const cur = body.getAttribute('data-lang') || 'it';
+    box.querySelectorAll('[data-it][data-en]').forEach(el => {
+      const t = el.getAttribute('data-' + cur);
+      if (t !== null) el.textContent = t;
+    });
+  })();
 })();
