@@ -28,29 +28,54 @@
   applyLang(lang);
   if (langToggle) langToggle.addEventListener('click', () => applyLang(body.getAttribute('data-lang') === 'it' ? 'en' : 'it'));
 
-  /* hero video: avvio da JS — nessun attributo autoplay (vedi embed A).
-     Con "riduci animazioni" il video resta fermo: lo spiega l'avviso .bb-rm. */
+  /* hero video: avvio da JS - nessun attributo autoplay (vedi embed A).
+     Se il browser rifiuta play() (iOS in risparmio energetico) o se sono attive le
+     animazioni ridotte, il <video> viene tolto di mezzo e resta il fotogramma poster:
+     senza elemento video Safari non ha nulla su cui disegnare i suoi comandi nativi.
+     Al primo gesto dell'utente il video torna e riprova a partire. */
   const video = document.querySelector('.w-background-video video') || document.getElementById('heroVideo');
   if (video) {
     video.muted = true; video.playsInline = true;
     video.removeAttribute('autoplay');
+    video.controls = false;
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const contenitore = video.closest('.w-background-video') || video.parentElement;
+    /* il poster Webflow lo tiene come background-image sul <video> stesso */
+    const poster = video.style.backgroundImage;
     let wanted = !reduced;
+    let nascosto = video.style.display === 'none';   /* lo script inline della testata puo' averlo gia' nascosto */
+
+    function mostraPoster() {
+      if (nascosto || !poster || !contenitore) return;   /* senza poster meglio il video fermo che il vuoto */
+      nascosto = true;
+      contenitore.style.backgroundImage = poster;
+      contenitore.style.backgroundSize = 'cover';
+      contenitore.style.backgroundPosition = 'center';
+      video.style.display = 'none';
+    }
+
+    function togliPoster() {
+      if (!nascosto) return;
+      nascosto = false;
+      video.style.display = '';
+      contenitore.style.backgroundImage = '';
+    }
 
     const tryPlay = () => {
       if (!wanted) return;
+      togliPoster();
       const p = video.play();
-      if (p && p.catch) p.catch(() => {});
+      if (p && p.catch) p.catch(mostraPoster);
     };
 
-    tryPlay();
+    if (reduced) mostraPoster(); else tryPlay();
 
     ['touchstart', 'click', 'keydown'].forEach(ev => window.addEventListener(ev, tryPlay, { once: true, passive: true }));
 
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(es => es.forEach(e => {
-        if (e.isIntersecting) tryPlay(); else video.pause();
+        if (e.isIntersecting) tryPlay(); else if (!video.paused) video.pause();
       })).observe(video);
     }
   }
