@@ -755,28 +755,23 @@ html.flat .hero{min-height:520px}
 .studio__lead{color:var(--muted);font-weight:300;font-size:1.14rem;line-height:1.7;max-width:620px}
 
 /* ====================================================================
-   CONFIGURATORE — scorciatoia fissa a #pacchetti
-   ==================================================================== */
-.cfg-fab{position:fixed;right:20px;bottom:20px;z-index:160;display:inline-flex;align-items:center;gap:9px;
-  padding:13px 20px 13px 16px;border-radius:var(--r-btn);font-family:var(--ff-d);font-weight:500;font-size:.9rem;color:#fff;
-  background:var(--red);box-shadow:0 14px 40px var(--red-glow);
-  transition:transform .35s var(--ease),box-shadow .35s,opacity .3s}
-.cfg-fab svg{width:20px;height:20px}
-.cfg-fab:hover{transform:translateY(-3px);box-shadow:0 20px 52px var(--red-glow)}
-
-body.cookie-open .cfg-fab{bottom:96px}
-
+   SCORCIATOIA FISSA — tolta il 2026-08-29
+   ====================================================================
+   .cfg-fab stava in basso a destra e portava a #pacchetti: lo stesso posto
+   a cui portano gia' il bottone della barra e la voce Pacchetti del menu.
+   Tre inviti allo stesso bersaglio, uno dei quali sempre a schermo e sopra
+   il contenuto. Il suo compito ce l'ha ora "Raccontaci il tuo progetto".
+   Restano solo le due righe del popup .cfg su schermo stretto. */
 @media(max-width:480px){
   .cfg{right:10px;left:10px;bottom:10px;width:auto}
-  .cfg-fab{right:14px;bottom:14px;padding:12px 18px 12px 15px}
-  body.cookie-open .cfg-fab{bottom:150px}
   body.cookie-open .cfg{bottom:14px}
 }
 
 /* avviso: il dispositivo sta limitando le animazioni.
-   Compare solo con prefers-reduced-motion, appoggiato sopra .cfg-fab.
-   Il `bottom` lo calcola main.js misurando la FAB, non e' un numero indovinato. */
-.bb-rm{position:fixed;right:20px;bottom:var(--bb-rm-bottom,92px);z-index:159;
+   Compare solo con prefers-reduced-motion. Il `bottom` lo calcolava main.js
+   misurando la FAB; ora che la FAB non c'e' piu' quel calcolo ricade sul
+   ripiego, che e' 20px — il valore qui sotto vale finche' main.js non parla. */
+.bb-rm{position:fixed;right:20px;bottom:var(--bb-rm-bottom,20px);z-index:159;
   display:flex;align-items:flex-start;gap:8px;
   width:min(320px,calc(100vw - 28px));padding:13px 14px;
   border:1px solid var(--line);border-radius:14px;background:rgba(10,10,12,.94);
