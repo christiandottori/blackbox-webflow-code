@@ -94,7 +94,11 @@ h1,h2,h3{font-family:var(--ff-titolo);font-weight:400;letter-spacing:-.01em;line
 .logo__dot{width:6px;height:6px;border-radius:50%;background:var(--red);margin:0 0 5px 4px;box-shadow:0 0 10px var(--red-glow)}
 
 .nav__links{display:flex;gap:clamp(18px,2.2vw,30px)}
-.nav__links a{font-size:.9rem;color:var(--muted);transition:color .3s;position:relative}
+/* La nav sta nel registro delle etichette, e ci sta su tutte le larghezze:
+   prima ereditava il testo corrente su desktop e diventava condensata solo
+   sotto i 900px, dove una regola nel media query gliela imponeva. Due
+   caratteri per lo stesso menu a seconda dello schermo. */
+.nav__links a{font-family:var(--ff-d);font-weight:500;font-size:.96rem;color:var(--muted);transition:color .3s;position:relative}
 .nav__links a::after{content:"";position:absolute;left:0;bottom:-4px;width:0;height:1px;background:var(--red);transition:width .3s var(--ease)}
 .nav__links a:hover{color:#fff}
 .nav__links a:hover::after{width:100%}
@@ -344,7 +348,7 @@ body.intro-done .hero__scroll{opacity:1}
 .tile__meta{display:flex;flex-direction:column;gap:9px}
 .tag{align-self:flex-start;font-family:var(--ff-d);font-size:.62rem;text-transform:uppercase;letter-spacing:.16em;color:var(--red);
   padding:4px 11px;border:1px solid rgba(255,42,42,.4);border-radius:100px;font-weight:500}
-.tile__meta em{font-family:var(--ff-d);font-weight:500;font-size:1.05rem;font-style:normal}
+.tile__meta em{font-family:var(--ff-titolo);font-weight:400;font-size:1.18rem;font-style:normal}
 .tile--feature .tile__meta em{font-size:1.5rem}
 
 .studio__grid{display:grid;grid-template-columns:1.5fr 1fr;gap:clamp(38px,6vw,76px);align-items:start}
@@ -685,7 +689,7 @@ body.intro-done .hero__scroll{opacity:1}
 .quiz__inner .kicker{justify-content:center;display:flex}
 .quiz__inner h2{font-size:clamp(1.6rem,3.6vw,2.4rem);margin-bottom:30px}
 .quiz__box{position:relative;min-height:120px}
-.quiz__q{font-family:var(--ff-d);font-size:1.15rem;margin-bottom:20px;color:#fff}
+.quiz__q{font-family:var(--ff-titolo);font-weight:400;font-size:1.3rem;margin-bottom:20px;color:#fff}
 .quiz__opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
 .quiz__opts button{padding:13px 22px;border:1px solid var(--line);border-radius:100px;color:#fff;font-family:var(--ff-d);font-size:.95rem;background:rgba(255,255,255,.03);transition:.3s var(--ease)}
 .quiz__opts button:hover{border-color:var(--red);background:rgba(255,42,42,.08);transform:translateY(-2px)}
@@ -769,7 +773,7 @@ body.cookie-open .cfg-fab{bottom:96px}
   border:1px solid var(--line);border-radius:14px;background:rgba(10,10,12,.94);
   -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
   box-shadow:0 18px 44px rgba(0,0,0,.5)}
-.bb-rm__t{font-family:var(--ff-d);font-size:.76rem;line-height:1.45;color:#dcdce0}
+.bb-rm__t{font-family:var(--ff);font-size:.78rem;line-height:1.45;color:#dcdce0}
 .bb-rm__t b{display:block;color:#fff;font-size:.79rem;margin-bottom:3px;font-weight:500}
 .bb-rm__x{flex:none;width:44px;height:44px;margin:-13px -14px 0 0;border:0;
   background:transparent;color:var(--muted);font-size:1.15rem;line-height:1;cursor:pointer}
