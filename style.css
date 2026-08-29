@@ -116,12 +116,14 @@ h1,h2,h3{font-family:var(--ff-titolo);font-weight:400;letter-spacing:-.01em;line
 .lang-sep{margin:0 3px;color:var(--muted-d)}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--ff-d);font-weight:500;font-size:1.05rem;
-  padding:16px 32px;border-radius:var(--r-btn);white-space:nowrap;transition:transform .3s var(--ease),box-shadow .3s,background .3s,border-color .3s,color .3s}
+  padding:12px 22px;border-radius:var(--r-btn);white-space:nowrap;transition:transform .3s var(--ease),box-shadow .3s,background .3s,border-color .3s,color .3s}
 .btn svg{width:18px;height:18px}
 .btn:active{transform:scale(.97)}
-/* Cresciuto apposta: a 9px/.85rem misurava 40px di altezza, sotto i 44 che
-   servono a un bersaglio da dito. Era gia' cosi' prima del ridisegno. */
-.btn--sm{padding:12px 26px;font-size:.95rem}
+/* Il piccolo si stringe solo in orizzontale: in verticale tiene i 12px del
+   fratello grande, perche' scendendo passerebbe sotto i 44px che servono a un
+   bersaglio da dito — a 9px/.85rem, com'era prima del ridisegno, ne misurava
+   40. La differenza fra i due la fanno larghezza e corpo, non l'altezza. */
+.btn--sm{padding:12px 18px;font-size:.95rem}
 .btn--red{background:var(--red);color:#fff;box-shadow:0 10px 30px var(--red-glow)}
 .btn--red:hover{transform:translateY(-2px);box-shadow:0 16px 40px var(--red-glow);background:#ff3b3b}
 .btn--ghost{border:1px solid var(--line);color:#fff;background:rgba(255,255,255,.02)}
