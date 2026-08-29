@@ -27,7 +27,14 @@
 
   --maxw:1280px;
   --pad:clamp(18px,4vw,40px);
-  --r:22px;
+  /* 2026-08-29 — via le forme morbide. Prima --r:22px sulle schede e
+     border-radius:100px scritto a mano su ogni bottone, controllo ed
+     etichetta: ventisei volte fra style.css e gli embed. Ora sono due
+     variabili, cosi' il prossimo ripensamento costa due righe invece di
+     ventisei. Tenerle separate e' voluto: schede e bottoni sono due decisioni
+     diverse, oggi coincidono a zero ma non e' detto che coincidano sempre. */
+  --r:0px;
+  --r-btn:0px;
   --ease:cubic-bezier(.19,1,.22,1);
 }
 
@@ -108,11 +115,13 @@ h1,h2,h3{font-family:var(--ff-titolo);font-weight:400;letter-spacing:-.01em;line
 .lang-toggle:hover{color:#fff}
 .lang-sep{margin:0 3px;color:var(--muted-d)}
 
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--ff-d);font-weight:500;font-size:.95rem;
-  padding:13px 24px;border-radius:100px;white-space:nowrap;transition:transform .3s var(--ease),box-shadow .3s,background .3s,border-color .3s,color .3s}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--ff-d);font-weight:500;font-size:1.05rem;
+  padding:16px 32px;border-radius:var(--r-btn);white-space:nowrap;transition:transform .3s var(--ease),box-shadow .3s,background .3s,border-color .3s,color .3s}
 .btn svg{width:18px;height:18px}
 .btn:active{transform:scale(.97)}
-.btn--sm{padding:9px 18px;font-size:.85rem}
+/* Cresciuto apposta: a 9px/.85rem misurava 40px di altezza, sotto i 44 che
+   servono a un bersaglio da dito. Era gia' cosi' prima del ridisegno. */
+.btn--sm{padding:12px 26px;font-size:.95rem}
 .btn--red{background:var(--red);color:#fff;box-shadow:0 10px 30px var(--red-glow)}
 .btn--red:hover{transform:translateY(-2px);box-shadow:0 16px 40px var(--red-glow);background:#ff3b3b}
 .btn--ghost{border:1px solid var(--line);color:#fff;background:rgba(255,255,255,.02)}
@@ -205,7 +214,7 @@ body.intro-done .hero__glow{opacity:1}
 .hero__veil{position:absolute;inset:0;background:linear-gradient(to top,rgba(6,6,7,.92) 0%,rgba(6,6,7,.35) 42%,rgba(6,6,7,.22) 66%,rgba(6,6,7,.6) 100%)}
 .hero__badge{position:absolute;left:var(--pad);top:calc(var(--pad) + 60px);z-index:2;display:inline-flex;align-items:center;gap:8px;
   font-family:var(--ff-d);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;
-  padding:7px 14px;border-radius:100px;background:rgba(0,0,0,.4);border:1px solid var(--line);backdrop-filter:blur(6px)}
+  padding:7px 14px;border-radius:var(--r-btn);background:rgba(0,0,0,.4);border:1px solid var(--line);backdrop-filter:blur(6px)}
 html.js .hero__badge{opacity:0;transition:opacity .8s .5s}
 body.intro-done .hero__badge{opacity:1}
 .hero__badge i{width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red);animation:blink 1.6s ease-in-out infinite}
@@ -308,7 +317,7 @@ body.intro-done .hero__scroll{opacity:1}
 .xcard__group:last-child{padding-bottom:36px}
 .xcard__group h4{font-family:var(--ff-d);font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted-d);margin-bottom:14px}
 .xcard__tags{list-style:none;display:flex;flex-wrap:wrap;gap:9px}
-.xcard__tags li{font-family:var(--ff-d);font-size:.82rem;color:var(--muted);padding:7px 14px;border:1px solid var(--line-soft);border-radius:100px;background:rgba(255,255,255,.02)}
+.xcard__tags li{font-family:var(--ff-d);font-size:.82rem;color:var(--muted);padding:7px 14px;border:1px solid var(--line-soft);border-radius:var(--r-btn);background:rgba(255,255,255,.02)}
 .xcard__checks{list-style:none;display:grid;grid-template-columns:repeat(2,1fr);gap:10px 22px}
 .xcard__checks li{position:relative;padding-left:24px;color:#dcdce0;font-weight:300;font-size:.92rem}
 .xcard__checks li::before{content:"✓";position:absolute;left:0;top:0;color:var(--red);font-weight:700}
@@ -347,7 +356,7 @@ body.intro-done .hero__scroll{opacity:1}
 .tile__no{font-family:var(--ff-m);font-size:.76rem;color:rgba(255,255,255,.5);letter-spacing:.06em}
 .tile__meta{display:flex;flex-direction:column;gap:9px}
 .tag{align-self:flex-start;font-family:var(--ff-d);font-size:.62rem;text-transform:uppercase;letter-spacing:.16em;color:var(--red);
-  padding:4px 11px;border:1px solid rgba(255,42,42,.4);border-radius:100px;font-weight:500}
+  padding:4px 11px;border:1px solid rgba(255,42,42,.4);border-radius:var(--r-btn);font-weight:500}
 .tile__meta em{font-family:var(--ff-titolo);font-weight:400;font-size:1.18rem;font-style:normal}
 .tile--feature .tile__meta em{font-size:1.5rem}
 
@@ -559,7 +568,7 @@ body.intro-done .hero__scroll{opacity:1}
   animation:tlStratMove 4.4s ease-in-out infinite}
 @keyframes tlStratMove{0%{offset-distance:0%}100%{offset-distance:100%}}
 .tlv-route__tag{position:absolute;font-family:var(--ff-d);font-size:.68rem;color:var(--muted);padding:4px 10px;border:1px solid var(--line-soft);
-  border-radius:100px;background:var(--bg-2);opacity:0;animation:tlTagIn .5s var(--ease) forwards;animation-delay:calc(var(--t) * 1.1s + .3s)}
+  border-radius:var(--r-btn);background:var(--bg-2);opacity:0;animation:tlTagIn .5s var(--ease) forwards;animation-delay:calc(var(--t) * 1.1s + .3s)}
 .tlv-route__tag--a{left:0;top:78px}
 .tlv-route__tag--b{left:30%;top:0}
 .tlv-route__tag--c{left:58%;top:78px}
@@ -653,7 +662,7 @@ body.intro-done .hero__scroll{opacity:1}
 .pkgs{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch}
 .pkg{position:relative;display:flex;flex-direction:column;padding:34px 30px;border:1px solid var(--line-soft);border-radius:var(--r);background:var(--bg-2)}
 .pkg--featured{border-color:var(--red);box-shadow:0 20px 60px var(--red-glow)}
-.pkg__badge{position:absolute;top:-11px;left:30px;font-family:var(--ff-d);font-size:.66rem;text-transform:uppercase;letter-spacing:.14em;color:#fff;background:var(--red);padding:5px 12px;border-radius:100px}
+.pkg__badge{position:absolute;top:-11px;left:30px;font-family:var(--ff-d);font-size:.66rem;text-transform:uppercase;letter-spacing:.14em;color:#fff;background:var(--red);padding:5px 12px;border-radius:var(--r-btn)}
 .pkg h3{font-family:var(--ff-titolo);font-weight:400;font-size:1.5rem;margin-bottom:6px}
 .pkg__for{color:var(--muted);font-weight:300;font-size:.92rem;margin-bottom:18px}
 /* 05 lavagna: i prezzi sono cifre, e le cifre hanno un carattere loro. Space
@@ -691,7 +700,7 @@ body.intro-done .hero__scroll{opacity:1}
 .quiz__box{position:relative;min-height:120px}
 .quiz__q{font-family:var(--ff-titolo);font-weight:400;font-size:1.3rem;margin-bottom:20px;color:#fff}
 .quiz__opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
-.quiz__opts button{padding:13px 22px;border:1px solid var(--line);border-radius:100px;color:#fff;font-family:var(--ff-d);font-size:.95rem;background:rgba(255,255,255,.03);transition:.3s var(--ease)}
+.quiz__opts button{padding:13px 22px;border:1px solid var(--line);border-radius:var(--r-btn);color:#fff;font-family:var(--ff-d);font-size:.95rem;background:rgba(255,255,255,.03);transition:.3s var(--ease)}
 .quiz__opts button:hover{border-color:var(--red);background:rgba(255,42,42,.08);transform:translateY(-2px)}
 .quiz__step[hidden],.quiz__result[hidden]{display:none}
 .quiz__result{display:flex;flex-direction:column;align-items:center;gap:14px}
@@ -729,11 +738,11 @@ html.flat .hero{min-height:520px}
    V4 — BLOCCO STUDIO UNIFICATO (tabs: Servizi + Metodo + Studio)
    ==================================================================== */
 .labs .section__head{margin-bottom:32px}
-.tabs{position:relative;display:flex;gap:4px;padding:5px;border:1px solid var(--line-soft);border-radius:100px;
+.tabs{position:relative;display:flex;gap:4px;padding:5px;border:1px solid var(--line-soft);border-radius:var(--r-btn);
   background:var(--bg-2);margin-bottom:clamp(30px,4vw,46px);width:100%}
-.tabs__ink{position:absolute;top:5px;bottom:5px;left:0;width:0;border-radius:100px;background:var(--red);
+.tabs__ink{position:absolute;top:5px;bottom:5px;left:0;width:0;border-radius:var(--r-btn);background:var(--red);
   box-shadow:0 8px 22px var(--red-glow);transition:transform .45s var(--ease),width .45s var(--ease);z-index:0;transform:translateX(5px)}
-.tab{position:relative;z-index:1;flex:1;padding:11px 22px;border-radius:100px;font-family:var(--ff-d);font-weight:500;font-size:.9rem;
+.tab{position:relative;z-index:1;flex:1;padding:11px 22px;border-radius:var(--r-btn);font-family:var(--ff-d);font-weight:500;font-size:.9rem;
   color:var(--muted);transition:color .3s;white-space:nowrap;text-align:center}
 .tab:hover{color:#fff}
 .tab.is-on{color:#fff}
@@ -749,7 +758,7 @@ html.flat .hero{min-height:520px}
    CONFIGURATORE — scorciatoia fissa a #pacchetti
    ==================================================================== */
 .cfg-fab{position:fixed;right:20px;bottom:20px;z-index:160;display:inline-flex;align-items:center;gap:9px;
-  padding:13px 20px 13px 16px;border-radius:100px;font-family:var(--ff-d);font-weight:500;font-size:.9rem;color:#fff;
+  padding:13px 20px 13px 16px;border-radius:var(--r-btn);font-family:var(--ff-d);font-weight:500;font-size:.9rem;color:#fff;
   background:var(--red);box-shadow:0 14px 40px var(--red-glow);
   transition:transform .35s var(--ease),box-shadow .35s,opacity .3s}
 .cfg-fab svg{width:20px;height:20px}
