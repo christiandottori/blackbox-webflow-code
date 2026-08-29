@@ -718,8 +718,10 @@
       '<button type="button" class="bb-rm__x" aria-label="Chiudi">×</button>';
     document.body.appendChild(box);
 
-    /* la posizione si misura sulla FAB, non si indovina:
-       cosi' segue anche lo spostamento che le fa il banner cookie */
+    /* La posizione si misurava sulla scorciatoia fissa .cfg-fab, tolta il
+       2026-08-29. La ricerca resta apposta: se un giorno tornasse un elemento
+       ancorato in basso a destra, basta dargli quella classe e l'avviso gli si
+       appoggia sopra da solo. Senza, si posa a 20px dal fondo. */
     const fab = document.querySelector('.cfg-fab');
     function posa() {
       if (!fab) { box.style.setProperty('--bb-rm-bottom', '20px'); return; }
