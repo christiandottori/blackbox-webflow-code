@@ -678,23 +678,14 @@ body.intro-done .hero__scroll{opacity:1}
 .quiz__bar{height:3px;background:var(--line-soft);border-radius:3px;margin-top:26px;overflow:hidden}
 .quiz__bar span{display:block;height:100%;width:33%;background:var(--red);transition:width .4s var(--ease)}
 
+/* 2026-08-29: qui dentro c'erano undici righe che rifluivano la striscia a
+   selezione su schermo stretto — striscia, nodi, pannelli. Sono uscite col
+   restyling: la griglia nuova si riflue da sola con le sue media query.
+   Restava anche .tl__visual{min-height:140px}, che avrebbe litigato con
+   l'altezza fissa dei riquadri dei passi. */
 @media(max-width:980px){
   .pkgs{grid-template-columns:1fr}
   .pkg--featured{order:-1}
-  .tl{grid-template-columns:1fr}
-  .tl__rail{flex-direction:row;overflow-x:auto;gap:8px;padding-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-  .tl__rail::-webkit-scrollbar{display:none}
-  .tl__rail-line{display:none}
-  .tl__item{flex-direction:column;align-items:center;text-align:center;flex:none;width:108px;padding:14px 8px;gap:8px}
-  .tl__item-node{display:none}
-  .tl__item-body{padding-top:0;align-items:center}
-  .tl__item-sub{display:none}
-  .tl__item-title{font-size:.78rem}
-  .tl__panel-inner{grid-template-columns:1fr;gap:26px}
-  .tl__visual{min-height:140px;order:-1}
-}
-@media(max-width:720px){
-  .tl__panel-inner{padding:22px}
 }
 html.flat .hero{min-height:520px}
 
