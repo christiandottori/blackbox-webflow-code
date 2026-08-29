@@ -183,7 +183,12 @@
       try { sessionStorage.setItem('bb-intro', '1'); } catch (e) {}
     };
     intro.addEventListener('animationend', (e) => { if (e.animationName === 'introReveal') finish(); });
-    setTimeout(finish, 5200);
+    /* 2026-08-29: la sequenza "Convergenza" chiude a 3,4s (zoom 1,3s con
+       ritardo 2,1s), non piu' a 4,7s. La rete di sicurezza resta mezzo
+       secondo oltre la fine vera: se la accorciamo troppo taglia l'intro a
+       chi ha il font lento, se resta a 5200 lascia lo schermo nero fermo
+       quasi due secondi quando l'animationend non arriva. */
+    setTimeout(finish, 3900);
   }
   /* La via di fuga inline dell'embed A legge questa bandiera. Sta QUI e non in cima:
      in cima proverebbe solo che lo script e' partito, non che l'intro sa piu' chiudersi.
