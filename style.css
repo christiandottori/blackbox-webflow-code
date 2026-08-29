@@ -124,8 +124,9 @@ html.no-intro .intro{display:none}
    schermo sopra i 1224px) e lettere immobili per 2,6s, con il movimento
    tutto concentrato nello zoom finale. Ora la scritta cala a 8.5rem e il
    movimento sta all'ingresso: le lettere arrivano una a una da larghe e
-   sfocate, la spaziatura si chiude, un filo rosso taglia, e solo dopo parte
-   lo zoom. Totale 3,4s invece di 4,7s. */
+   sfocate e la spaziatura si chiude. Poi il quadro sta fermo mentre lo
+   showreel si accende dentro le lettere, e lo zoom finale resta quello di
+   sempre. Totale 4,1s invece di 4,7s. */
 #introText,.intro__fill{font-family:var(--ff-brand);font-weight:500;font-size:clamp(2.8rem,11vw,8.5rem);letter-spacing:-.03em}
 #introText{fill:#000}
 .intro__fill{fill:#fff}
@@ -151,23 +152,21 @@ html.no-intro .intro{display:none}
   to{letter-spacing:-.03em;filter:blur(0)}}
 @keyframes fillWhite{to{opacity:0}}
 
-.intro__line{position:absolute;left:0;right:0;top:50%;height:1px;background:var(--red);
-  opacity:0;transform:scaleX(0);box-shadow:0 0 18px rgba(255,42,42,.8)}
-.intro.play .intro__line{animation:wmLine .35s var(--ease) 1.15s}
-@keyframes wmLine{0%{opacity:0;transform:scaleX(0)}
-  40%{opacity:1;transform:scaleX(1)}
-  100%{opacity:0;transform:scaleX(1)}}
-
-/* Origine sulla O e non al centro geometrico: lo zoom entra dentro una
-   lettera invece che nel vuoto fra due. Il nome introReveal resta quello di
-   prima apposta — main.js ascolta l'animationend proprio per quel nome, e
-   rinominarlo lascerebbe l'intro attaccata allo schermo fino al timeout. */
-.intro.play{transform-origin:68% 50%;
-  animation:introReveal 1.3s cubic-bezier(.6,0,.25,1) 2.1s forwards}
+/* Lo zoom e' rimasto identico all'originale — centrato, scala 6.5, il
+   respiro a 1.05, la sfocatura a 5px. Era stato provato con l'origine sulla
+   O (68%): agganciarlo a una lettera fa scivolare la parola verso sinistra
+   proprio mentre lo showreel si accende dentro i buchi, e in quel momento
+   non si deve muovere niente. Cambia solo l'attacco, 2s invece di 2,6s,
+   perche' le lettere adesso finiscono di entrare prima.
+   Il nome introReveal non si tocca: main.js ascolta l'animationend proprio
+   per quel nome, e rinominarlo lascerebbe l'intro incollata allo schermo
+   fino al timeout. */
+.intro.play{animation:introReveal 2.1s cubic-bezier(.6,0,.25,1) 2s forwards}
 @keyframes introReveal{
   0%{transform:scale(1);opacity:1;filter:blur(0)}
-  22%{transform:scale(.97)}
-  100%{transform:scale(7);opacity:0;filter:blur(6px)}
+  26%{transform:scale(1.05)}
+  55%{opacity:1;filter:blur(0)}
+  100%{transform:scale(6.5);opacity:0;filter:blur(5px)}
 }
 
 html.js .nav-wrap{opacity:0;transform:translateY(-8px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
