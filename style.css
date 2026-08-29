@@ -14,9 +14,16 @@
   --red-deep:#c00010;
   --red-glow:rgba(255,42,42,.32);
 
-  --ff:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
-  --ff-d:'Space Grotesk',var(--ff);
-  --ff-brand:'Hitmarker',var(--ff-d);
+  /* 2026-08-29 — cinque registri, uno per mestiere. Il marchio non e' in
+     gioco: Hitmarker resta, e resta SOLO dove c'e' scritto BlackBox (intro,
+     logo, footer). Tutto il resto cambia voce.
+     Nota sul ripiego di --ff-brand: non punta piu' a --ff-d, perche' Saira e'
+     condensata e il marchio senza Hitmarker diventerebbe stretto e irriconoscibile. */
+  --ff:'Instrument Sans',-apple-system,BlinkMacSystemFont,sans-serif;      /* 03 sottotitolo */
+  --ff-titolo:'Instrument Serif',Georgia,'Times New Roman',serif;          /* 02 titolo */
+  --ff-d:'Saira Condensed','Arial Narrow',var(--ff);                       /* 04 blocco crediti */
+  --ff-m:'Space Mono','SFMono-Regular',Consolas,monospace;                 /* 05 lavagna */
+  --ff-brand:'Hitmarker','Arial Black',sans-serif;                         /* 01 marchio, fermo */
 
   --maxw:1280px;
   --pad:clamp(18px,4vw,40px);
@@ -31,7 +38,10 @@ a{color:inherit;text-decoration:none}
 img,video{display:block;max-width:100%}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
 ::selection{background:var(--red);color:#fff}
-h1,h2,h3{font-family:var(--ff-brand);font-weight:500;letter-spacing:-.01em;line-height:1.06}
+/* I titoli lasciano il marchio: da qui in poi Hitmarker vale solo per la
+   parola BlackBox. Peso 400 e non 500 perche' Instrument Serif ha un taglio
+   solo: chiedergliene 500 fa inventare al browser un finto grassetto. */
+h1,h2,h3{font-family:var(--ff-titolo);font-weight:400;letter-spacing:-.01em;line-height:1.06}
 
 [data-lang="it"] .lang-en{opacity:.35}
 [data-lang="en"] .lang-it{opacity:.35}
@@ -205,8 +215,10 @@ body.intro-done .hero__content>*:nth-child(1){transition-delay:.05s}
 body.intro-done .hero__content>*:nth-child(2){transition-delay:.16s}
 body.intro-done .hero__content>*:nth-child(3){transition-delay:.28s}
 body.intro-done .hero__content>*:nth-child(4){transition-delay:.4s}
-.eyebrow{font-family:var(--ff-d);text-transform:uppercase;letter-spacing:.3em;font-size:.7rem;color:var(--red);margin-bottom:20px}
-.hero__title{font-family:var(--ff-brand);font-weight:500;font-size:clamp(2.5rem,7.2vw,5.8rem);letter-spacing:-.01em;max-width:16ch}
+/* peso 500 e non 400: un condensato a .7rem con .3em di spaziatura, lasciato
+   al peso normale, si sgrana e sembra sbiadito sul nero */
+.eyebrow{font-family:var(--ff-d);font-weight:500;text-transform:uppercase;letter-spacing:.3em;font-size:.72rem;color:var(--red);margin-bottom:20px}
+.hero__title{font-family:var(--ff-titolo);font-weight:400;font-size:clamp(2.5rem,7.2vw,5.8rem);letter-spacing:-.01em;max-width:16ch}
 .hero__title span{display:block}
 .hero__title .accent{color:var(--red)}
 .hero__sub{max-width:560px;margin:22px 0 0;color:#dcdce0;font-weight:300;font-size:clamp(1rem,1.4vw,1.16rem)}
@@ -259,7 +271,7 @@ body.intro-done .hero__scroll{opacity:1}
    ha gia' la sua aria sotto. */
 #studio{padding-top:clamp(36px,5vw,56px)}
 .section__head{max-width:820px;margin-bottom:clamp(40px,5vw,64px)}
-.kicker{font-family:var(--ff-d);text-transform:uppercase;letter-spacing:.22em;font-size:.72rem;color:var(--red);margin-bottom:18px}
+.kicker{font-family:var(--ff-d);font-weight:500;text-transform:uppercase;letter-spacing:.22em;font-size:.74rem;color:var(--red);margin-bottom:18px}
 .section__head h2,.studio__text h2{font-size:clamp(1.9rem,4.6vw,3.2rem)}
 .section__note{margin-top:14px;color:var(--muted-d);font-size:.9rem}
 
@@ -328,7 +340,7 @@ body.intro-done .hero__scroll{opacity:1}
 .ph--3{background:radial-gradient(120% 120% at 30% 90%,#301a10,#0b0b0f 60%)}
 .ph--4{background:radial-gradient(120% 120% at 70% 20%,#10222e,#0b0b0f 60%)}
 .ph--5{background:radial-gradient(120% 120% at 40% 80%,#2a0a0e,#0b0b0f 60%)}
-.tile__no{font-family:var(--ff-d);font-size:.8rem;color:rgba(255,255,255,.5);letter-spacing:.1em}
+.tile__no{font-family:var(--ff-m);font-size:.76rem;color:rgba(255,255,255,.5);letter-spacing:.06em}
 .tile__meta{display:flex;flex-direction:column;gap:9px}
 .tag{align-self:flex-start;font-family:var(--ff-d);font-size:.62rem;text-transform:uppercase;letter-spacing:.16em;color:var(--red);
   padding:4px 11px;border:1px solid rgba(255,42,42,.4);border-radius:100px;font-weight:500}
@@ -443,9 +455,9 @@ body.intro-done .hero__scroll{opacity:1}
 .legal-top a.back{font-size:.88rem;color:var(--muted);display:inline-flex;align-items:center;gap:7px;transition:color .3s}
 .legal-top a.back:hover{color:#fff}
 .legal{max-width:820px;margin:0 auto;padding:clamp(50px,8vw,90px) var(--pad) 90px}
-.legal h1{font-family:var(--ff-d);font-size:clamp(2rem,5vw,3rem);letter-spacing:-.02em;margin-bottom:10px}
+.legal h1{font-family:var(--ff-titolo);font-weight:400;font-size:clamp(2rem,5vw,3rem);letter-spacing:-.02em;margin-bottom:10px}
 .legal .updated{color:var(--muted-d);font-size:.85rem;margin-bottom:34px}
-.legal h2{font-family:var(--ff-d);font-size:1.25rem;margin:38px 0 12px;color:#fff}
+.legal h2{font-family:var(--ff-titolo);font-weight:400;font-size:1.4rem;margin:38px 0 12px;color:#fff}
 .legal p,.legal li{color:var(--muted);font-weight:300;font-size:1rem;line-height:1.7}
 .legal ul{margin:10px 0 10px 20px}
 .legal li{margin-bottom:6px}
@@ -477,7 +489,7 @@ body.intro-done .hero__scroll{opacity:1}
 .tl__item-ic--notion{font-family:var(--ff-d);font-weight:700;font-size:1.05rem}
 .tl__item.is-on .tl__item-ic{border-color:var(--red);color:var(--red);background:rgba(255,42,42,.08)}
 .tl__item-body{display:flex;flex-direction:column;padding-top:2px;min-width:0}
-.tl__item-no{font-family:var(--ff-d);font-size:.68rem;letter-spacing:.1em;color:var(--red);margin-bottom:3px}
+.tl__item-no{font-family:var(--ff-m);font-size:.66rem;letter-spacing:.06em;color:var(--red);margin-bottom:3px}
 .tl__item-title{font-size:.96rem;color:#fff;font-weight:500;margin-bottom:3px}
 .tl__item-sub{font-size:.79rem;color:var(--muted);font-weight:300;line-height:1.45}
 
@@ -638,15 +650,18 @@ body.intro-done .hero__scroll{opacity:1}
 .pkg{position:relative;display:flex;flex-direction:column;padding:34px 30px;border:1px solid var(--line-soft);border-radius:var(--r);background:var(--bg-2)}
 .pkg--featured{border-color:var(--red);box-shadow:0 20px 60px var(--red-glow)}
 .pkg__badge{position:absolute;top:-11px;left:30px;font-family:var(--ff-d);font-size:.66rem;text-transform:uppercase;letter-spacing:.14em;color:#fff;background:var(--red);padding:5px 12px;border-radius:100px}
-.pkg h3{font-family:var(--ff-brand);font-weight:500;font-size:1.5rem;margin-bottom:6px}
+.pkg h3{font-family:var(--ff-titolo);font-weight:400;font-size:1.5rem;margin-bottom:6px}
 .pkg__for{color:var(--muted);font-weight:300;font-size:.92rem;margin-bottom:18px}
-.pkg__price{font-family:var(--ff-d);margin-bottom:22px;color:var(--muted)}
+/* 05 lavagna: i prezzi sono cifre, e le cifre hanno un carattere loro. Space
+   Mono e' a larghezza fissa, quindi le colonne dei tre pacchetti si allineano
+   da sole senza tabular-nums. */
+.pkg__price{font-family:var(--ff-m);margin-bottom:22px;color:var(--muted)}
 .pkg__price strong{font-size:2rem;color:#fff;font-weight:700}
 .pkg ul{list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:26px;flex:1}
 .pkg li{position:relative;padding-left:24px;color:#cfcfd4;font-weight:300;font-size:.94rem}
 .pkg li::before{content:"";position:absolute;left:0;top:7px;width:10px;height:10px;border-radius:50%;border:1.5px solid var(--red)}
 .pkg .btn{width:100%}
-.pkgs__group{font-family:var(--ff-brand);font-size:1.15rem;font-weight:500;color:#fff;display:flex;align-items:center;gap:12px;margin:0 0 28px}
+.pkgs__group{font-family:var(--ff-titolo);font-size:1.3rem;font-weight:400;color:#fff;display:flex;align-items:center;gap:12px;margin:0 0 28px}
 .pkgs__group::before{content:"";width:26px;height:1px;background:var(--red);flex:none}
 .pkgs__note{color:var(--muted-d);font-size:.86rem;margin:24px 0 0}
 .pkgs__note + .pkgs__group{margin-top:96px}
@@ -656,7 +671,7 @@ body.intro-done .hero__scroll{opacity:1}
    ==================================================================== */
 .faq__list{border-top:1px solid var(--line)}
 .faq__item{border-bottom:1px solid var(--line)}
-.faq__item summary{list-style:none;cursor:pointer;padding:22px 42px 22px 0;position:relative;font-family:var(--ff-brand);font-weight:500;font-size:1.12rem;color:#fff;transition:color .3s}
+.faq__item summary{list-style:none;cursor:pointer;padding:22px 42px 22px 0;position:relative;font-family:var(--ff-titolo);font-weight:400;font-size:1.24rem;color:#fff;transition:color .3s}
 .faq__item summary::-webkit-details-marker{display:none}
 .faq__item summary::after{content:"+";position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:1.4rem;color:var(--red);transition:transform .3s}
 .faq__item[open] summary::after{content:"\2013"}
@@ -677,7 +692,7 @@ body.intro-done .hero__scroll{opacity:1}
 .quiz__step[hidden],.quiz__result[hidden]{display:none}
 .quiz__result{display:flex;flex-direction:column;align-items:center;gap:14px}
 .quiz__rlabel{font-family:var(--ff-d);text-transform:uppercase;letter-spacing:.16em;font-size:.7rem;color:var(--red)}
-.quiz__rtitle{font-family:var(--ff-d);font-size:1.5rem}
+.quiz__rtitle{font-family:var(--ff-titolo);font-weight:400;font-size:1.6rem}
 .quiz__rtext{color:var(--muted);font-weight:300;max-width:54ch}
 .quiz__restart{color:var(--muted-d);font-size:.85rem;text-decoration:underline;margin-top:2px}
 .quiz__bar{height:3px;background:var(--line-soft);border-radius:3px;margin-top:26px;overflow:hidden}
