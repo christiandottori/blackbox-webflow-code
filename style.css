@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    BlackBox — style.css  (rounded / cinematic / black+red)
    ==================================================================== */
 
@@ -485,43 +485,8 @@ body.intro-done .hero__scroll{opacity:1}
 /* ====================================================================
    COME LAVORIAMO — TIMELINE
    ==================================================================== */
-.tl{display:grid;grid-template-columns:340px 1fr;gap:clamp(20px,3vw,40px);align-items:stretch}
 
-.tl__rail{position:relative;display:flex;flex-direction:column;gap:2px}
-.tl__rail-line{position:absolute;left:29px;top:28px;bottom:28px;width:2px;background:var(--line-soft);border-radius:2px;overflow:hidden;z-index:0}
-.tl__rail-fill{position:absolute;left:0;right:0;top:0;height:0;background:linear-gradient(180deg,var(--red-deep),var(--red));transition:height .5s var(--ease)}
-.tl__item{position:relative;z-index:1;display:flex;align-items:flex-start;gap:14px;padding:12px 10px;border-radius:14px;text-align:left;
-  transition:background .3s;width:100%}
-.tl__item:hover{background:rgba(255,255,255,.03)}
-.tl__item.is-on{background:rgba(255,42,42,.07)}
-.tl__item-node{flex:none;width:12px;height:12px;margin-top:16px;border-radius:50%;background:var(--bg-2);border:2px solid var(--line-soft);position:relative;transition:.3s}
-.tl__item.is-on .tl__item-node{background:var(--red);border-color:var(--red);box-shadow:0 0 0 5px rgba(255,42,42,.18)}
-.tl__item.is-on .tl__item-node::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:1.5px solid rgba(255,42,42,.5);animation:tlNodePulse 1.8s ease-out infinite}
 @keyframes tlNodePulse{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.7);opacity:0}}
-.tl__item-ic{flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line-soft);background:var(--bg-2);display:flex;
-  align-items:center;justify-content:center;color:var(--muted-d);transition:.3s}
-.tl__item-ic svg{width:20px;height:20px}
-.tl__item-ic--notion{font-family:var(--ff-d);font-weight:700;font-size:1.05rem}
-.tl__item.is-on .tl__item-ic{border-color:var(--red);color:var(--red);background:rgba(255,42,42,.08)}
-.tl__item-body{display:flex;flex-direction:column;padding-top:2px;min-width:0}
-.tl__item-no{font-family:var(--ff-m);font-size:.66rem;letter-spacing:.06em;color:var(--red);margin-bottom:3px}
-.tl__item-title{font-size:.96rem;color:#fff;font-weight:500;margin-bottom:3px}
-.tl__item-sub{font-size:.79rem;color:var(--muted);font-weight:300;line-height:1.45}
-
-.tl__panels{position:relative;height:100%}
-.tl__panel{display:none;height:100%}
-.tl__panel.is-on{display:block;animation:tlIn .55s var(--ease)}
-@keyframes tlIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-
-.tl__panel-inner{height:100%;display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(30px,5vw,64px);align-items:center;
-  padding:clamp(28px,4vw,46px);border:1px solid var(--line-soft);border-radius:var(--r);background:linear-gradient(180deg,rgba(255,255,255,.03),transparent)}
-.tl__eyebrow{font-family:var(--ff-d);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:12px}
-.tl__copy h3{font-size:clamp(1.3rem,2.4vw,1.7rem);margin-bottom:14px}
-.tl__lead{color:#dcdce0;font-weight:300;font-size:.98rem;margin-bottom:14px}
-.tl__note{color:var(--muted);font-weight:300;font-size:.88rem;margin-bottom:14px}
-.tl__closing{color:#fff;font-weight:400;font-size:.96rem;margin-top:16px;padding-top:16px;border-top:1px solid var(--line-soft)}
-.tl__tags{margin-bottom:6px}
-.tl__checks{margin-bottom:6px}
 
 .tl__visual{position:relative;min-height:180px;display:flex;align-items:center;justify-content:center}
 
@@ -739,20 +704,6 @@ html.flat .hero{min-height:520px}
 /* ====================================================================
    V4 — BLOCCO STUDIO UNIFICATO (tabs: Servizi + Metodo + Studio)
    ==================================================================== */
-.labs .section__head{margin-bottom:32px}
-.tabs{position:relative;display:flex;gap:4px;padding:5px;border:1px solid var(--line-soft);border-radius:var(--r-btn);
-  background:var(--bg-2);margin-bottom:clamp(30px,4vw,46px);width:100%}
-.tabs__ink{position:absolute;top:5px;bottom:5px;left:0;width:0;border-radius:var(--r-btn);background:var(--red);
-  box-shadow:0 8px 22px var(--red-glow);transition:transform .45s var(--ease),width .45s var(--ease);z-index:0;transform:translateX(5px)}
-.tab{position:relative;z-index:1;flex:1;padding:11px 22px;border-radius:var(--r-btn);font-family:var(--ff-d);font-weight:500;font-size:.9rem;
-  color:var(--muted);transition:color .3s;white-space:nowrap;text-align:center}
-.tab:hover{color:#fff}
-.tab.is-on{color:#fff}
-
-.panes{position:relative}
-.pane[hidden]{display:none}
-.pane{animation:paneIn .5s var(--ease)}
-@keyframes paneIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 
 .studio__lead{color:var(--muted);font-weight:300;font-size:1.14rem;line-height:1.7;max-width:620px}
 
@@ -794,3 +745,121 @@ html.flat .hero{min-height:520px}
 .recaptcha-wrap{display:flex;flex-direction:column;gap:10px;padding:6px 14px 14px;border:1px solid rgba(255,42,42,.35);border-radius:14px;background:rgba(255,42,42,.05)}
 .recaptcha-label{font-family:var(--ff-d);font-size:.85rem;color:#fff}
 .recaptcha{min-height:78px}
+
+/* ====================================================================
+   01 — COSA FACCIAMO / COME LAVORIAMO  (restyling 2026-08-29)
+   ====================================================================
+   Sostituisce il blocco a schede+striscia. Tre differenze di fondo:
+
+   1. Si esce dai 1280px. .section incolonna dentro --maxw; queste due
+      prendono la larghezza intera e lasciano solo un margine. I filetti
+      vanno da bordo a bordo, ed e' quello che fa sembrare la pagina un
+      giornale invece che una colonna.
+   2. Niente piu' schede a pillola e niente striscia a selezione: il
+      contenuto sta tutto in pagina, non dietro un clic. Per questo da
+      main.js sono spariti selectTab e initRail.
+   3. Fra le due meta' c'e' uno strato che sta SOTTO il piano del sito.
+      Su un fondo quasi nero un'ombra non si vede, quindi la profondita'
+      si fa al contrario: la fascia di sotto e' piu' CHIARA e i pannelli
+      sopra restano al nero pieno. */
+
+.sez-editoriale{max-width:none;margin:0;padding:0 clamp(16px,3.2vw,56px);
+  position:relative;z-index:3;background:var(--bg)}
+/* la riga di luce e' lo spigolo del pannello: senza, il bordo sparisce
+   nel nero e il pannello non ha spessore */
+.sez-editoriale::before,.sez-editoriale::after{content:"";position:absolute;left:0;right:0;
+  height:1px;background:rgba(255,255,255,.13)}
+.sez-editoriale::before{top:0}
+.sez-editoriale::after{bottom:0}
+.sez-editoriale + .sez-editoriale::before{display:none}
+
+/* ---------- testata: un sommario da giornale ---------- */
+.masthead{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(28px,5vw,90px);
+  align-items:start;padding:clamp(56px,7vw,104px) 0 clamp(26px,3.4vw,42px);border-bottom:1px solid var(--line)}
+.masthead__no{font-family:var(--ff-m);font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--red);margin-bottom:18px}
+.masthead h2{font-size:clamp(2.4rem,5.6vw,4.6rem);line-height:.98;letter-spacing:-.015em}
+.masthead h2 em{font-style:italic;color:var(--red)}
+.sommario{border-top:2px solid var(--red);padding-top:14px;max-width:52ch}
+.sommario__k{font-family:var(--ff-m);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--muted-d);display:block;margin-bottom:10px}
+.sommario p{color:#cfcfd4;font-size:clamp(1rem,1.15vw,1.1rem);line-height:1.62}
+@media(max-width:900px){.masthead{grid-template-columns:1fr;gap:26px}}
+
+/* ---------- i tre mestieri ---------- */
+.servizi{display:grid;grid-template-columns:repeat(3,1fr);border-left:1px solid var(--line-soft)}
+.scheda{border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);
+  padding:clamp(26px,2.6vw,40px);display:flex;flex-direction:column;gap:16px;position:relative;
+  transition:background .4s var(--ease)}
+.scheda:hover{background:rgba(255,255,255,.018)}
+.scheda::before{content:"";position:absolute;left:0;top:-1px;height:2px;width:0;background:var(--red);
+  transition:width .5s var(--ease)}
+.scheda:hover::before{width:100%}
+.scheda__no{font-family:var(--ff-m);font-size:.7rem;letter-spacing:.14em;color:var(--red)}
+.scheda__ic{width:44px;height:44px;border:1px solid var(--line-soft);display:grid;place-items:center;color:var(--red)}
+.scheda__ic svg{width:22px;height:22px}
+.scheda h3{font-size:clamp(1.7rem,2.6vw,2.5rem);line-height:1.06;letter-spacing:-.01em}
+.scheda p{color:#cfcfd4;font-size:.99rem}
+/* il capolettera va sulla classe del testo, non sul primo <p> della
+   scheda: li' dentro il primo paragrafo e' l'occhiello */
+.scheda:first-child .scheda__lead::first-letter{float:left;font-family:var(--ff-titolo);font-size:3.4em;
+  line-height:.82;padding:2px 12px 0 0;color:var(--white)}
+.tag-riga{display:flex;flex-wrap:wrap;gap:7px;margin-top:auto;padding-top:8px;list-style:none}
+.tag-riga li{font-family:var(--ff-d);font-weight:500;font-size:.76rem;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);border:1px solid var(--line-soft);padding:5px 11px}
+@media(max-width:900px){
+  .servizi{grid-template-columns:1fr;border-left:0}
+  .scheda{border-right:0}
+}
+
+/* ---------- lo strato di sotto ---------- */
+/* Il margine laterale NON sta qui ma sul contenuto: il nastro dei loghi usa
+   la stessa fascia e deve andare da bordo a bordo, mentre la frase va
+   rientrata. Metterlo sulla fascia li obbligherebbe alla stessa misura. */
+.strato-sotto{position:relative;overflow:hidden;background:#101015}
+/* Il nastro "Lavoriamo con" e' una fascia di sotto anche lui, ma senza
+   parallasse: scorre gia' da solo ed e' trascinabile, e sommare due
+   movimenti sullo stesso elemento li fa litigare. Qui la profondita' la
+   fanno il colore piu' chiaro e le ombre sui bordi, che bastano. */
+.proof.strato-sotto{background:#101015}
+.strato-sotto::before,.strato-sotto::after{content:"";position:absolute;left:0;right:0;height:80px;
+  pointer-events:none;z-index:2}
+.strato-sotto::before{top:0;background:linear-gradient(rgba(0,0,0,.85),transparent)}
+.strato-sotto::after{bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.85))}
+.strato-sotto__dentro{position:relative;z-index:1;will-change:transform}
+
+.divisore{padding:clamp(64px,8vw,130px) clamp(16px,3.2vw,56px);display:grid;place-items:center;
+  text-align:center;margin:0}
+.divisore blockquote{margin:0;font-family:var(--ff-titolo);font-style:italic;
+  font-size:clamp(1.9rem,4.6vw,3.6rem);line-height:1.14;color:#fff;max-width:26ch}
+.divisore__due{color:var(--red)}
+.divisore figcaption{font-family:var(--ff-m);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--muted-d);margin-top:24px}
+.divisore__filo{width:1px;height:clamp(34px,5vw,64px);background:linear-gradient(var(--red),transparent);
+  margin-bottom:28px}
+
+/* ---------- gli otto passi ---------- */
+.metodo{display:grid;grid-template-columns:repeat(4,1fr);border-left:1px solid var(--line-soft);
+  border-top:1px solid var(--line)}
+.passo{border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);
+  padding:clamp(20px,1.9vw,30px);display:flex;flex-direction:column;gap:14px;
+  transition:background .4s var(--ease)}
+.passo:hover{background:rgba(255,255,255,.02)}
+.passo__no{font-family:var(--ff-m);font-size:.72rem;letter-spacing:.12em;color:var(--red)}
+.passo h4{font-family:var(--ff-titolo);font-weight:400;font-size:1.32rem;line-height:1.12}
+.passo p{color:var(--muted);font-size:.87rem;line-height:1.5}
+/* 200px: il pannello Notion del quarto passo e' il piu' alto di tutti
+   (184px) e a meno di cosi' veniva tagliato. La misura la detta il
+   visualino piu' ingombrante, non la media. */
+.passo__fig{height:200px;display:flex;align-items:center;justify-content:center;overflow:hidden;
+  border:1px solid var(--line-soft);background:rgba(255,255,255,.015)}
+.passo__fig > *{transform:scale(.94);transform-origin:center}
+/* il cuore della partnership e' l'unico visualino senza misura propria:
+   il suo svg e' width:100% e dentro una cella larga si gonfia */
+.passo__fig .tlv-heart{width:44px;height:44px;flex:none}
+.passo__fig .tl__visual{width:100%;max-width:100%;min-height:0}
+@media(max-width:1100px){.metodo{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){
+  .passo__fig{height:150px}
+  .passo__fig > *{transform:scale(.66)}
+}

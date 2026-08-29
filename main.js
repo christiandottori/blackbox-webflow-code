@@ -21,7 +21,8 @@
       if (t !== null) el.textContent = t;
     });
     try { localStorage.setItem('bb-lang', lang); } catch (e) {}
-    if (typeof moveInk === 'function') moveInk();
+    /* 2026-08-29: qui si rimisurava la pastiglia delle schede quando il
+       testo cambiava lingua. Le schede non ci sono piu'. */
   }
   let lang = 'it';
   try { lang = localStorage.getItem('bb-lang') || 'it'; } catch (e) {}
@@ -228,115 +229,49 @@
     });
   }
 
-  /* ---------- blocco studio a tab (Servizi / Metodo / Studio) ---------- */
-  const tabsWrap = document.querySelector('.tabs');
-  const tabBtns = tabsWrap ? Array.prototype.slice.call(tabsWrap.querySelectorAll('.tab')) : [];
-  const panes = Array.prototype.slice.call(document.querySelectorAll('.pane'));
-  function moveInk() {
-    const tw = document.querySelector('.tabs');
-    if (!tw) return;
-    const ik = tw.querySelector('.tabs__ink');
-    const on = tw.querySelector('.tab.is-on');
-    if (!ik || !on) return;
-    ik.style.width = on.offsetWidth + 'px';
-    ik.style.transform = 'translateX(' + on.offsetLeft + 'px)';
-  }
-  function selectTab(name) {
-    let found = false;
-    tabBtns.forEach(b => {
-      const on = b.dataset.tab === name;
-      b.classList.toggle('is-on', on);
-      b.setAttribute('aria-selected', on ? 'true' : 'false');
-      if (on) found = true;
-    });
-    if (!found) return;
-    panes.forEach(p => { p.hidden = p.dataset.pane !== name; });
-    moveInk();
-  }
-  if (tabBtns.length) {
-    tabBtns.forEach((b, i) => {
-      b.addEventListener('click', () => selectTab(b.dataset.tab));
-      b.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-          e.preventDefault();
-          const dir = e.key === 'ArrowRight' ? 1 : -1;
-          const next = tabBtns[(i + dir + tabBtns.length) % tabBtns.length];
-          next.focus(); selectTab(next.dataset.tab);
-        }
+  /* ---------- strati di sotto: la parallasse ----------
+     Le fasce divisorie stanno sotto il piano del sito e il loro contenuto
+     scorre piu' lento della pagina. E' il segnale di profondita' che
+     l'occhio legge per primo, e non chiede prospettiva ne' trasformazioni
+     3d: solo uno spostamento verticale proporzionale a quanto la fascia
+     e' lontana dal centro dello schermo.
+     Con "riduci animazioni" non parte: la' la profondita' la fanno gia'
+     il colore piu' chiaro della fascia e le ombre sui bordi. */
+  (function () {
+    const strati = Array.prototype.slice.call(document.querySelectorAll('[data-parallasse]'));
+    if (!strati.length) return;
+    /* La preferenza si ascolta, non si legge una volta sola: chi la accende a
+       pagina aperta si aspetta che il movimento smetta subito, non al prossimo
+       caricamento. E riaccendendola le fasce vanno rimesse dritte, altrimenti
+       restano ferme nell'ultima posizione storta. */
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let inCoda = false;
+    function posa() {
+      inCoda = false;
+      if (mq.matches) return;
+      const h = window.innerHeight;
+      strati.forEach(function (s) {
+        const r = s.parentElement.getBoundingClientRect();
+        if (r.bottom < -200 || r.top > h + 200) return;
+        const centro = r.top + r.height / 2 - h / 2;
+        s.style.transform = 'translate3d(0,' + (-centro * parseFloat(s.dataset.parallasse)).toFixed(1) + 'px,0)';
       });
-    });
-    window.addEventListener('resize', moveInk);
-    window.addEventListener('load', () => setTimeout(moveInk, 120));
-    setTimeout(moveInk, 60);
-  }
-
-  /* ---------- rail a selezione (usata da "Cosa facciamo" e "Come lavoriamo") ---------- */
-  function initRail(container) {
-    if (!container) return;
-    const tlDots = Array.from(container.querySelectorAll('.tl__item'));
-    const tlPanels = Array.from(container.querySelectorAll('.tl__panel'));
-    const tlFill = container.querySelector('.tl__rail-fill');
-    const railEl = container.querySelector('.tl__rail');
-    let tlIndex = 0;
-    let tlTimer = null;
-
-    function selectStep(i) {
-      if (i < 0 || i >= tlDots.length) return;
-      tlIndex = i;
-      tlDots.forEach((d, di) => {
-        const on = di === i;
-        d.classList.toggle('is-on', on);
-        d.setAttribute('aria-selected', on ? 'true' : 'false');
-      });
-      tlPanels.forEach(p => {
-        p.classList.toggle('is-on', Number(p.dataset.step) === i);
-      });
-      if (tlFill) tlFill.style.height = ((i / (tlDots.length - 1)) * 100) + '%';
-      const activeItem = tlDots[i];
-      if (activeItem && railEl) {
-        const railRect = railEl.getBoundingClientRect();
-        const itemRect = activeItem.getBoundingClientRect();
-        const itemCenterOffset = (itemRect.left - railRect.left) + itemRect.width / 2;
-        let target = railEl.scrollLeft + (itemCenterOffset - railRect.width / 2);
-        target = Math.max(0, Math.min(target, railEl.scrollWidth - railEl.clientWidth));
-        railEl.scrollTo({ left: target, behavior: 'smooth' });
-      }
     }
+    function suScroll() { if (!inCoda) { inCoda = true; requestAnimationFrame(posa); } }
+    window.addEventListener('scroll', suScroll, { passive: true });
+    window.addEventListener('resize', suScroll, { passive: true });
 
-    function stopAuto() { if (tlTimer) { clearInterval(tlTimer); tlTimer = null; } }
-    function startAuto() {
-      stopAuto();
-      tlTimer = setInterval(() => { selectStep((tlIndex + 1) % tlDots.length); }, 6000);
+    function cambio() {
+      if (mq.matches) strati.forEach(function (s) { s.style.transform = ''; });
+      else posa();
     }
+    /* addEventListener sui MediaQueryList e' recente: addListener e' il
+       ripiego per i browser che non ce l'hanno ancora. */
+    if (mq.addEventListener) mq.addEventListener('change', cambio);
+    else if (mq.addListener) mq.addListener(cambio);
 
-    tlDots.forEach((d, i) => {
-      d.addEventListener('click', () => { selectStep(i); stopAuto(); });
-      d.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-          e.preventDefault();
-          const dir = (e.key === 'ArrowRight' || e.key === 'ArrowDown') ? 1 : -1;
-          const next = tlDots[(i + dir + tlDots.length) % tlDots.length];
-          next.focus();
-          selectStep((i + dir + tlDots.length) % tlDots.length);
-          stopAuto();
-        }
-      });
-    });
-
-    container.addEventListener('pointerenter', stopAuto);
-    container.addEventListener('pointerleave', startAuto);
-
-    selectStep(0);
-    startAuto();
-
-    const tlIO = new IntersectionObserver((entries) => {
-      entries.forEach(en => { if (!en.isIntersecting) stopAuto(); else startAuto(); });
-    }, { threshold: .2 });
-    tlIO.observe(container);
-  }
-
-  initRail(document.getElementById('servicesTimeline'));
-  initRail(document.getElementById('processTimeline'));
+    cambio();
+  })();
 
   /* ---------- globo 3D "Dove operiamo" (rotazione automatica + trascinabile) ---------- */
   (function () {
@@ -621,7 +556,6 @@
       e.preventDefault();
       navLinks && navLinks.classList.remove('open');
       navInner && navInner.classList.remove('open');
-      if (a.dataset.tab) selectTab(a.dataset.tab);
       smoothScrollTo(t, 550);
     });
   });
@@ -638,7 +572,6 @@
     revealEls.forEach(el => io.observe(el));
     window.addEventListener('load', () => setTimeout(() => {
       revealEls.forEach(el => { if (el.getBoundingClientRect().top < innerHeight) el.classList.add('in'); });
-      moveInk();
     }, 300));
     setTimeout(() => revealEls.forEach(el => el.classList.add('in')), 4500);
   }
