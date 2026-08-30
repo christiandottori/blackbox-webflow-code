@@ -307,10 +307,19 @@
        spariscono davvero e il tetto non ha senso: li' il pannello prende il
        loro posto e si allunga quanto gli serve. */
     function fissaAltezza(pannello) {
-      if (!mqLargo.matches) { pannello.style.height = ''; return; }
+      pannello.style.height = '';
+      if (!mqLargo.matches) return;
       let h = 0;
       schede.forEach(function (s) { h = Math.max(h, s.getBoundingClientRect().height); });
-      pannello.style.height = h > 0 ? Math.round(h) + 'px' : '';
+      if (h <= 0) return;
+      pannello.style.height = Math.round(h) + 'px';
+      /* La rete. Il tetto e' l'altezza delle schede, che dipende dal loro testo
+         e cambia col sito: la stessa pagina misurava 513px in anteprima e 492
+         dal vivo, e in quei ventun pixel ci stava una riga di elenco che
+         spariva senza dire niente. Se il contenuto non ci sta, il tetto si
+         toglie: un pannello piu' alto delle schede si vede e si sistema, una
+         riga tagliata via no. */
+      if (pannello.scrollHeight > pannello.clientHeight) pannello.style.height = '';
     }
 
     function pannelloDi(n) {
@@ -398,11 +407,14 @@
       const scheda = griglia.querySelector('.scheda[data-scheda="' + n + '"]');
       tornaA = scheda ? scheda.querySelector('.scheda__apri') : null;
 
-      /* la misura si prende col pannello ancora nascosto: li' l'altezza della
-         riga la fanno solo le schede, che e' esattamente quella da tenere */
-      fissaAltezza(pannello);
+      /* is-aperta per prima: da li' le schede stanno ad align-self:start e
+         tengono la loro altezza vera anche quando il pannello allarga la riga.
+         Poi il pannello si mostra, e solo dopo si misura: da nascosto non ha
+         layout e la rete dentro fissaAltezza non potrebbe accorgersi di
+         niente. */
       griglia.classList.add('is-aperta');
       pannello.hidden = false;
+      fissaAltezza(pannello);
       pannello.classList.remove('si-chiude');
       /* togliere e rimettere la classe nello stesso fotogramma non fa
          ripartire l'animazione: questa lettura forza il ricalcolo */

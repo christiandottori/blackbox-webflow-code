@@ -864,8 +864,8 @@ html.flat .hero{min-height:520px}
    con l'impaginazione — vedi dettaglio__dentro qui sotto. */
 .dettaglio{grid-column:1/-1;z-index:2;background:var(--bg);
   border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);
-  padding:clamp(24px,2.6vw,44px);
-  position:relative;display:flex;flex-direction:column;gap:clamp(14px,1.6vw,22px);
+  padding:clamp(22px,2.2vw,36px);
+  position:relative;display:flex;flex-direction:column;gap:clamp(12px,1.3vw,18px);
   min-height:0;overflow:hidden}
 .dettaglio:focus{outline:none}
 .dettaglio[hidden]{display:none}
@@ -895,11 +895,15 @@ html:not(.js) .scheda__apri,html:not(.js) .indietro{display:none}
   margin-bottom:14px}
 .dettaglio__lead{color:#cfcfd4;font-size:.95rem;line-height:1.58}
 
+/* Le misure qui sono strette apposta. Il pannello piu' pieno — tre gruppi,
+   trentacinque voci — deve stare dentro l'altezza delle schede, che dipende dal
+   testo delle schede e cambia col sito: in anteprima erano 513px, sul sito vero
+   492. Ventun pixel di differenza bastavano a far tagliare una riga. */
 .dettaglio__gruppi{display:grid;align-content:start;min-height:0}
-.dettaglio__gruppo + .dettaglio__gruppo{margin-top:clamp(14px,1.6vw,22px);
-  padding-top:clamp(14px,1.6vw,22px);border-top:1px solid var(--line-soft)}
+.dettaglio__gruppo + .dettaglio__gruppo{margin-top:clamp(10px,1.1vw,15px);
+  padding-top:clamp(10px,1.1vw,15px);border-top:1px solid var(--line-soft)}
 .dettaglio__gruppo h4{font-family:var(--ff-m);font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;
-  color:var(--muted-d);font-weight:400;margin-bottom:10px}
+  color:var(--muted-d);font-weight:400;margin-bottom:8px}
 
 /* Le categorie non sono piu' pastiglie ma una corsa di parole separate da un
    punto rosso, come un blocco di crediti. Diciannove pastiglie occupavano
@@ -908,7 +912,7 @@ html:not(.js) .scheda__apri,html:not(.js) .indietro{display:none}
    restano sulle schede chiuse, dove sono quattro e fanno da assaggio: cosi' le
    due cose si distinguono anche a colpo d'occhio. */
 .elenco-corsa{list-style:none;font-family:var(--ff-d);font-weight:500;
-  font-size:clamp(.95rem,1.05vw,1.06rem);letter-spacing:.015em;line-height:1.72;color:#cfcfd4}
+  font-size:clamp(.95rem,1.05vw,1.06rem);letter-spacing:.015em;line-height:1.62;color:#cfcfd4}
 .elenco-corsa li{display:inline}
 /* spazio unificatore prima del punto e spazio normale dopo: il punto resta
    incollato alla parola che separa e non va mai a capo da solo a inizio riga,
@@ -920,7 +924,7 @@ html:not(.js) .scheda__apri,html:not(.js) .indietro{display:none}
 /* "Cosa comprende" resta un elenco spuntato: sono cose che ricevi, non
    categorie, e la spunta lo dice. Su piu' colonne per starci in altezza. */
 .elenco-spunta{list-style:none;display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:7px clamp(16px,1.8vw,30px)}
+  grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:6px clamp(16px,1.8vw,30px)}
 .elenco-spunta li{position:relative;padding-left:20px;color:#cfcfd4;font-size:.92rem;line-height:1.4}
 .elenco-spunta li::before{content:"✓";position:absolute;left:0;top:0;color:var(--red);font-size:.78rem}
 
@@ -929,7 +933,6 @@ html:not(.js) .scheda__apri,html:not(.js) .indietro{display:none}
 .indietro svg{width:15px;height:15px;transition:transform .3s var(--ease)}
 .indietro:hover svg{transform:translateX(-4px)}
 .indietro:focus-visible{outline:2px solid var(--red);outline-offset:4px}
-.dettaglio__coda{border-top:1px solid var(--line-soft);margin-top:clamp(22px,2.6vw,34px);padding-top:10px}
 
 /* Non var(--ease): quella e' una expo-out molto sbilanciata in avanti — a
    meta' corsa il ritaglio era gia' al 98% e il verso non si vedeva. Qui il
