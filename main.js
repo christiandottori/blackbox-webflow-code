@@ -273,6 +273,182 @@
     cambio();
   })();
 
+  /* ---------- i tre mestieri: la scheda si apre sulle altre due ----------
+     Il pannello con l'elenco intero e' gia' in pagina: sta nella stessa riga
+     di griglia delle tre schede ed e' largo quanto tutte e tre. Aprirlo vuol
+     dire scoprirlo con un clip-path che parte dalla colonna su cui si e'
+     cliccato — la prima cresce verso destra, la seconda dalle due parti, la
+     terza risale verso sinistra. Il verso lo decide il CSS con --da: qui si
+     decide soltanto il quando.
+     Le schede non spariscono subito. Restano sotto al pannello per tutta
+     l'apertura, cosi' si vede che vengono coperte, e solo a fine corsa passano
+     a visibility:hidden — che le toglie anche dal giro dei Tab e dalle voci
+     lette a voce alta, cosa che display:none non avrebbe fatto senza far
+     saltare l'altezza della riga. */
+  (function () {
+    const griglia = document.querySelector('.servizi');
+    if (!griglia) return;
+    const schede = Array.prototype.slice.call(griglia.querySelectorAll('.scheda'));
+    const pannelli = Array.prototype.slice.call(griglia.querySelectorAll('.dettaglio'));
+    if (!schede.length || !pannelli.length) return;
+
+    const mqRidotto = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mqLargo = window.matchMedia('(min-width: 901px)');
+    let apertoOra = null;   /* il pannello visibile in questo momento */
+    let tornaA = null;      /* il bottone a cui ridare il fuoco chiudendo */
+    let annullaAttesa = null;
+
+    /* Il pannello resta alto quanto erano le schede: aprendo e chiudendo la
+       pagina non cresce e non si accorcia, e l'unica cosa che si muove e' il
+       ritaglio che scorre di lato. L'altezza la sanno solo le schede, e il CSS
+       non puo' leggerla: si misura qui.
+       Le schede restano misurabili anche a pannello aperto perche' sono
+       nascoste con visibility, non con display. A una colonna sola invece
+       spariscono davvero e il tetto non ha senso: li' il pannello prende il
+       loro posto e si allunga quanto gli serve. */
+    function fissaAltezza(pannello) {
+      if (!mqLargo.matches) { pannello.style.height = ''; return; }
+      let h = 0;
+      schede.forEach(function (s) { h = Math.max(h, s.getBoundingClientRect().height); });
+      pannello.style.height = h > 0 ? Math.round(h) + 'px' : '';
+    }
+
+    function pannelloDi(n) {
+      for (let i = 0; i < pannelli.length; i++) {
+        if (pannelli[i].dataset.dettaglio === n) return pannelli[i];
+      }
+      return null;
+    }
+
+    /* Con "riduci animazioni" il CSS mette animation:none e animationend non
+       arriva mai: il seguito va chiamato lo stesso, o il pannello resterebbe
+       aperto per sempre. La rete di sicurezza copre anche il caso in cui
+       l'evento si perda perche' nel frattempo e' partita un'altra animazione
+       sullo stesso elemento.
+       1200ms e non 700: l'animazione dura 480ms e quello che segue nasconde
+       le schede sotto al pannello. Con la rete troppo vicina, su una macchina
+       occupata basta un ritardo di due decimi perche' scatti prima della fine
+       e le schede spariscano mentre il pannello non le copre ancora. */
+    function alFine(el, poi) {
+      if (annullaAttesa) { annullaAttesa(); annullaAttesa = null; }
+      if (mqRidotto.matches) { poi(); return; }
+      let fatto = false;
+      let rete = 0;
+      function una() {
+        if (fatto) return;
+        fatto = true;
+        el.removeEventListener('animationend', una);
+        clearTimeout(rete);
+        annullaAttesa = null;
+        poi();
+      }
+      annullaAttesa = function () {
+        fatto = true;
+        el.removeEventListener('animationend', una);
+        clearTimeout(rete);
+      };
+      rete = setTimeout(una, 1200);
+      el.addEventListener('animationend', una);
+    }
+
+    /* La sezione si allunga di parecchio: se il suo bordo di sopra e' finito
+       sotto la barra, chi ha aperto si ritrova in mezzo a un testo che prima
+       non c'era. Lo si riporta appena sotto la barra, e solo in quel caso. */
+    function rimettiInVista() {
+      const r = griglia.getBoundingClientRect();
+      if (r.top >= 90) return;
+      window.scrollTo({
+        top: window.scrollY + r.top - 90,
+        behavior: mqRidotto.matches ? 'auto' : 'smooth'
+      });
+    }
+
+    function spegni(pannello) {
+      pannello.classList.remove('si-apre', 'si-chiude');
+      pannello.hidden = true;
+      pannello.style.height = '';
+      if (!griglia.querySelector('.dettaglio:not([hidden])')) griglia.classList.remove('is-aperta');
+    }
+
+    /* Cambiando larghezza le schede cambiano altezza, e il tetto del pannello
+       aperto va rimisurato: le schede sono ancora li' sotto, invisibili ma
+       larghe e alte quanto sarebbero. Anche passando sotto i 901px, dove il
+       tetto va tolto del tutto. */
+    let inCodaMisura = false;
+    window.addEventListener('resize', function () {
+      if (!apertoOra || inCodaMisura) return;
+      inCodaMisura = true;
+      requestAnimationFrame(function () {
+        inCodaMisura = false;
+        if (apertoOra) fissaAltezza(apertoOra);
+      });
+    }, { passive: true });
+
+    function segnaBottoni(n) {
+      schede.forEach(function (s) {
+        const b = s.querySelector('.scheda__apri');
+        if (b) b.setAttribute('aria-expanded', s.dataset.scheda === n ? 'true' : 'false');
+      });
+    }
+
+    function apri(n) {
+      const pannello = pannelloDi(n);
+      if (!pannello || apertoOra === pannello) return;
+      if (apertoOra) spegni(apertoOra);
+      const scheda = griglia.querySelector('.scheda[data-scheda="' + n + '"]');
+      tornaA = scheda ? scheda.querySelector('.scheda__apri') : null;
+
+      /* la misura si prende col pannello ancora nascosto: li' l'altezza della
+         riga la fanno solo le schede, che e' esattamente quella da tenere */
+      fissaAltezza(pannello);
+      griglia.classList.add('is-aperta');
+      pannello.hidden = false;
+      pannello.classList.remove('si-chiude');
+      /* togliere e rimettere la classe nello stesso fotogramma non fa
+         ripartire l'animazione: questa lettura forza il ricalcolo */
+      void pannello.offsetWidth;
+      pannello.classList.add('si-apre');
+      apertoOra = pannello;
+      segnaBottoni(n);
+      alFine(pannello, function () {
+        schede.forEach(function (s) { s.classList.add('e-coperta'); });
+      });
+      pannello.focus({ preventScroll: true });
+      rimettiInVista();
+    }
+
+    function chiudi() {
+      const pannello = apertoOra;
+      if (!pannello) return;
+      apertoOra = null;
+      schede.forEach(function (s) { s.classList.remove('e-coperta'); });
+      pannello.classList.remove('si-apre');
+      void pannello.offsetWidth;
+      pannello.classList.add('si-chiude');
+      alFine(pannello, function () { spegni(pannello); });
+      segnaBottoni(null);
+      const b = tornaA;
+      tornaA = null;
+      if (b) b.focus({ preventScroll: true });
+      rimettiInVista();
+    }
+
+    griglia.addEventListener('click', function (e) {
+      if (!e.target || !e.target.closest) return;
+      if (e.target.closest('.indietro')) { chiudi(); return; }
+      const scheda = e.target.closest('.scheda');
+      if (!scheda || !scheda.dataset.scheda) return;
+      /* chi stava selezionando del testo non voleva aprire niente */
+      const sel = window.getSelection && window.getSelection();
+      if (sel && String(sel).length > 0 && !e.target.closest('.scheda__apri')) return;
+      apri(scheda.dataset.scheda);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && apertoOra) chiudi();
+    });
+  })();
+
   /* ---------- globo 3D "Dove operiamo" (rotazione automatica + trascinabile) ---------- */
   (function () {
     const canvas = document.getElementById('globeCanvas');

@@ -251,18 +251,27 @@ body.intro-done .hero__scroll{opacity:1}
 /* ====================================================================
    PROOF / SECTORS MARQUEE
    ==================================================================== */
-/* 2026-08-28 — meno vuoto sotto: fra il carosello e "01 — Cosa e come lo
-   facciamo" c'erano 200px in tutto (70 qui piu' 130 sopra la sezione). */
-.proof{position:relative;z-index:1;max-width:none;width:100%;margin:0;padding:clamp(40px,6vw,70px) 0 clamp(12px,2vw,28px)}
-.proof__label{text-align:center;font-size:.8rem;color:var(--muted-d);margin-bottom:22px;letter-spacing:.02em}
-/* Niente righe sopra e sotto: le sfumature ai lati dicono gia' dove il nastro
-   comincia e dove finisce, i due filetti erano di troppo. */
+/* 2026-08-30 — imbottitura simmetrica e abbondante: il nastro si muove con lo
+   scorrimento e gli serve aria sopra e sotto per non affacciarsi fuori dalla
+   fascia. Prima sotto ce n'erano 12-28px.
+   La misura non e' a occhio: a parallasse 0.16 e fascia visibile per intero lo
+   spostamento massimo e' 0.16 x (altezza schermo - altezza fascia) / 2, che a
+   900px di schermo fa una cinquantina di pixel. Centodieci lasciano il doppio
+   del margine, e i due sfumati neri sui bordi coprono gli ultimi istanti in cui
+   la fascia sta entrando o uscendo. */
+.proof{position:relative;z-index:1;max-width:none;width:100%;margin:0;padding:clamp(64px,7.5vw,110px) 0}
+/* 2026-08-30 — le sfumature laterali non sono piu' due rettangoli sopra al
+   nastro ma una maschera sul nastro stesso. I due <div> di prima sfumavano
+   verso --bg (#060607) mentre la fascia e' #101015: un colore che non c'entra,
+   alto quanto il nastro e non quanto la fascia. Da qui le due cose che si
+   vedevano — la banda che non prendeva tutto il riquadro e la scalinatura.
+   La maschera lavora sull'opacita', quindi qualunque sia il fondo il nastro ci
+   svanisce dentro; e non avendo un colore proprio non puo' sbagliarlo. */
 .marquee{position:relative;overflow:hidden;padding:33px 0;
-  cursor:grab;touch-action:pan-y;-webkit-user-select:none;user-select:none}
+  cursor:grab;touch-action:pan-y;-webkit-user-select:none;user-select:none;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%)}
 .marquee:active{cursor:grabbing}
-.marquee__edge{position:absolute;top:0;bottom:0;width:16%;z-index:2;pointer-events:none}
-.marquee__edge--l{left:0;background:linear-gradient(90deg,var(--bg),transparent);backdrop-filter:blur(2px);-webkit-mask:linear-gradient(90deg,#000 30%,transparent)}
-.marquee__edge--r{right:0;background:linear-gradient(270deg,var(--bg),transparent);backdrop-filter:blur(2px);-webkit-mask:linear-gradient(270deg,#000 30%,transparent)}
 /* 2026-08-28 — loghi del 50% piu' grandi: a 21px erano una fila di puntini,
    non un elenco di strumenti riconoscibili. Cresce tutto insieme (icona,
    testo, spazio fra un logo e l'altro), se no il carosello si sbilancia. */
@@ -591,23 +600,45 @@ body.intro-done .hero__scroll{opacity:1}
 .tlv-msgline__check{width:26px;height:22px;border-radius:8px;background:rgba(255,42,42,.12);border:1px solid rgba(255,42,42,.35);color:var(--red);
   display:flex;align-items:center;justify-content:center;font-size:.8rem}
 
-/* 07 · consegna — cartella che si chiude */
+/* 07 · consegna — la cartella parte e arriva nella posta */
+/* 2026-08-30 — prima era una cartella che si chiudeva col coperchio rosso che
+   ruotava su rotateX: una cosa che si chiude somiglia a un archivio, non a una
+   consegna, e in una cella alta 200px il coperchio in prospettiva si leggeva
+   male. Adesso il gesto e' quello vero: la cartella attraversa e finisce
+   dentro la casella, che si accende e prende la spunta. Il verso da sinistra a
+   destra e' lo stesso della lettura. */
 .tl__visual--delivery{flex-direction:column;gap:14px}
-.tlv-deliver{position:relative;width:80px;height:64px;perspective:220px}
-.tlv-deliver__file{position:absolute;bottom:30px;left:calc(6px + var(--n) * 23px);width:22px;height:16px;border-radius:2px;background:var(--bg-2);border:1px solid var(--line-soft);
-  opacity:0;animation:tlFileIn 3.2s ease-in-out infinite;animation-delay:calc(var(--n) * .18s);z-index:0}
-@keyframes tlFileIn{0%{opacity:0;transform:translateY(-16px)}18%{opacity:1;transform:translateY(0)}40%{opacity:1;transform:translateY(0)}55%,100%{opacity:0;transform:translateY(6px)}}
-.tlv-folder__back{position:absolute;left:8px;top:18px;width:64px;height:38px;border-radius:0 8px 8px 8px;background:var(--bg-2);
-  border:1.5px solid var(--line-soft);z-index:1}
-.tlv-folder__back::before{content:"";position:absolute;left:0;top:-8px;width:26px;height:10px;border-radius:6px 6px 0 0;background:var(--bg-2);
-  border:1.5px solid var(--line-soft);border-bottom:none}
-.tlv-folder__lid{position:absolute;left:8px;top:18px;width:64px;height:38px;border-radius:0 8px 8px 8px;
-  background:linear-gradient(180deg,rgba(255,42,42,.18),rgba(255,42,42,.05));border:1.5px solid rgba(255,42,42,.4);
-  transform-origin:top center;z-index:2;animation:tlLidClose 3.2s ease-in-out infinite}
-@keyframes tlLidClose{0%,40%{transform:rotateX(0)}55%,100%{transform:rotateX(55deg)}}
-.tlv-folder__badge{position:absolute;left:52px;top:2px;z-index:3;width:22px;height:22px;border-radius:50%;background:var(--red);
-  color:#fff;font-size:.72rem;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px var(--bg-2);
-  opacity:0;animation:tlBadgePop 3.2s ease-in-out infinite}
+.tlv-invio{position:relative;width:172px;height:60px;flex:none}
+.tlv-invio__cartella{position:absolute;left:0;top:50%;margin-top:-15px;width:42px;height:30px;
+  border:1.5px solid var(--line-soft);border-radius:0 6px 6px 6px;background:var(--bg-2);
+  display:flex;flex-direction:column;justify-content:center;gap:4px;padding:0 7px;
+  animation:tlInvio 3.4s ease-in-out infinite}
+.tlv-invio__cartella::before{content:"";position:absolute;left:-1.5px;top:-9px;width:19px;height:10px;
+  border-radius:5px 5px 0 0;background:var(--bg-2);border:1.5px solid var(--line-soft);border-bottom:none}
+.tlv-invio__cartella i{display:block;height:2px;border-radius:2px;background:var(--line-soft)}
+.tlv-invio__cartella i:nth-child(2){width:66%}
+.tlv-invio__cartella i:nth-child(3){width:82%}
+@keyframes tlInvio{
+  0%,8%{transform:translateX(0) scale(1);opacity:0}
+  16%{transform:translateX(0) scale(1);opacity:1}
+  50%{transform:translateX(96px) scale(.4);opacity:1}
+  60%,100%{transform:translateX(122px) scale(.16);opacity:0}
+}
+.tlv-invio__scia{position:absolute;left:48px;top:50%;width:74px;height:20px;margin-top:-10px;overflow:visible}
+.tlv-invio__scia path{fill:none;stroke:var(--red);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:3 7;
+  opacity:0;animation:tlScia 3.4s ease-in-out infinite}
+@keyframes tlScia{0%,14%{opacity:0;stroke-dashoffset:30}26%{opacity:.75}48%{opacity:.3;stroke-dashoffset:0}
+  58%,100%{opacity:0;stroke-dashoffset:0}}
+.tlv-invio__busta{position:absolute;right:0;top:50%;margin-top:-26px;width:52px;height:52px;border-radius:14px;
+  border:1px solid var(--line-soft);background:var(--bg-2);display:flex;align-items:center;justify-content:center;
+  color:var(--muted);animation:tlBusta 3.4s ease-in-out infinite}
+.tlv-invio__busta svg{width:26px;height:26px}
+@keyframes tlBusta{0%,46%{transform:scale(1);border-color:var(--line-soft);color:var(--muted)}
+  56%{transform:scale(1.12);border-color:rgba(255,42,42,.5);color:var(--red)}
+  66%,100%{transform:scale(1);border-color:rgba(255,42,42,.3);color:var(--red)}}
+.tlv-invio__badge{position:absolute;top:-7px;right:-7px;width:20px;height:20px;border-radius:50%;background:var(--red);
+  color:#fff;font-size:.66rem;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px var(--bg-2);
+  opacity:0;animation:tlBadgePop 3.4s ease-in-out infinite}
 @keyframes tlBadgePop{0%,52%{opacity:0;transform:scale(.4)}62%{opacity:1;transform:scale(1.25)}70%{transform:scale(1)}95%,100%{opacity:1;transform:scale(1)}}
 .tlv-folder__label{font-family:var(--ff-d);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 
@@ -771,11 +802,20 @@ html.flat .hero{min-height:520px}
   color:var(--red);margin-bottom:18px}
 .masthead h2{font-size:clamp(2.4rem,5.6vw,4.6rem);line-height:.98;letter-spacing:-.015em}
 .masthead h2 em{font-style:italic;color:var(--red)}
-.sommario{border-top:2px solid var(--red);padding-top:14px;max-width:52ch}
+/* 2026-08-30 — il sommario si appoggia al margine destro.
+   Prima era largo al massimo 52ch dentro una colonna che a schermo largo ne
+   misura 80: restava fermo a meta' strada, senza un bordo a cui allinearsi, e
+   in mezzo alla pagina si leggeva come disordine. Con margin-left:auto il suo
+   filo rosso finisce esattamente dove finisce il titolo a sinistra: stessa
+   misura di margine, da una parte e dall'altra. */
+.sommario{border-top:2px solid var(--red);padding-top:14px;width:100%;max-width:46ch;margin-left:auto}
 .sommario__k{font-family:var(--ff-m);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;
   color:var(--muted-d);display:block;margin-bottom:10px}
 .sommario p{color:#cfcfd4;font-size:clamp(1rem,1.15vw,1.1rem);line-height:1.62}
-@media(max-width:900px){.masthead{grid-template-columns:1fr;gap:26px}}
+/* A una colonna il margine automatico spingerebbe il testo a destra lasciando
+   un vuoto a sinistra: li' il sommario deve tornare in colonna col titolo. */
+@media(max-width:900px){.masthead{grid-template-columns:1fr;gap:26px}
+  .sommario{margin-left:0;max-width:none}}
 
 /* ---------- i tre mestieri ---------- */
 .servizi{display:grid;grid-template-columns:repeat(3,1fr);border-left:1px solid var(--line-soft)}
@@ -791,27 +831,170 @@ html.flat .hero{min-height:520px}
 .scheda__ic svg{width:22px;height:22px}
 .scheda h3{font-size:clamp(1.7rem,2.6vw,2.5rem);line-height:1.06;letter-spacing:-.01em}
 .scheda p{color:#cfcfd4;font-size:.99rem}
-/* il capolettera va sulla classe del testo, non sul primo <p> della
-   scheda: li' dentro il primo paragrafo e' l'occhiello */
-.scheda:first-child .scheda__lead::first-letter{float:left;font-family:var(--ff-titolo);font-size:3.4em;
-  line-height:.82;padding:2px 12px 0 0;color:var(--white)}
-.tag-riga{display:flex;flex-wrap:wrap;gap:7px;margin-top:auto;padding-top:8px;list-style:none}
+/* 2026-08-30 — via il capolettera. Cadeva solo sulla prima scheda e la
+   rendeva diversa dalle altre due: tre mestieri pari fra loro non possono
+   avere una descrizione con l'iniziale grande e due senza. */
+.tag-riga{display:flex;flex-wrap:wrap;gap:7px;padding-top:8px;list-style:none}
 .tag-riga li{font-family:var(--ff-d);font-weight:500;font-size:.76rem;letter-spacing:.08em;
   text-transform:uppercase;color:var(--muted);border:1px solid var(--line-soft);padding:5px 11px}
+
+/* ---------- la scheda si apre sulle altre due ---------- */
+/* 2026-08-30 — l'elenco completo dei servizi era finito fuori quando la
+   sezione a schede a pillola e' stata smontata: c'erano sette tipologie di
+   contenuto, diciannove settori, dodici voci di cosa comprende. Adesso stanno
+   nel pannello che si apre al posto delle tre schede.
+   Il verso di apertura dice da dove viene: la prima cresce verso destra e
+   copre le altre due, la seconda si allarga dalle due parti, la terza risale
+   verso sinistra. E' clip-path e non scaleX apposta: la scala deformerebbe il
+   testo, il ritaglio scopre un pannello gia' impaginato. */
+.scheda__apri{margin-top:auto;align-self:flex-start;display:inline-flex;align-items:center;gap:9px;
+  min-height:44px;padding:0;color:var(--red);font-family:var(--ff-m);font-size:.72rem;
+  letter-spacing:.16em;text-transform:uppercase}
+.scheda__apri svg{width:15px;height:15px;transition:transform .3s var(--ease)}
+.scheda__apri:hover svg{transform:translateX(4px)}
+.scheda__apri:focus-visible{outline:2px solid var(--red);outline-offset:4px}
+
+/* 2026-08-30 — il pannello resta alto quanto erano le schede. L'altezza gliela
+   misura main.js, perche' e' quella delle schede e il CSS non la sa. Cosi'
+   aprendo e chiudendo la pagina non cresce e non si accorcia: si vede solo il
+   ritaglio che scorre di lato, che e' il gesto.
+   Dentro non si scorre. Il primo tentativo lasciava scorrere l'area degli
+   elenchi ed era una toppa: un pannello che si apre e poi chiede di scorrere
+   dentro se stesso e' una scatola dentro una scatola. La misura giusta si fa
+   con l'impaginazione — vedi dettaglio__dentro qui sotto. */
+.dettaglio{grid-column:1/-1;z-index:2;background:var(--bg);
+  border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);
+  padding:clamp(24px,2.6vw,44px);
+  position:relative;display:flex;flex-direction:column;gap:clamp(14px,1.6vw,22px);
+  min-height:0;overflow:hidden}
+.dettaglio:focus{outline:none}
+.dettaglio[hidden]{display:none}
+/* Senza JavaScript i pannelli restano aperti e i comandi spariscono: se
+   main.js non arriva dal CDN, l'elenco intero dei servizi si legge lo stesso
+   invece di sparire dietro tre bottoni che non fanno niente. La classe .js la
+   mette lo script in cima alla testata, prima che si disegni qualcosa,
+   quindi con il JavaScript acceso non c'e' nessun lampo. */
+html:not(.js) .dettaglio[hidden]{display:block}
+html:not(.js) .scheda__apri,html:not(.js) .indietro{display:none}
+/* L'impaginazione che fa stare tutto senza scorrere: l'identita' del servizio
+   in una colonna stretta a sinistra, gli elenchi in una larga a destra. Prima
+   erano impilati — titolo e occhiello si prendevano centotrenta pixel in
+   altezza che agli elenchi servivano. Messi affianco quei pixel tornano, e la
+   pagina si legge come una doppia di rivista invece che come un modulo. */
+/* align-items:stretch e non start: il filo verticale fra le due colonne e' il
+   bordo della testa, e con start finiva dove finiva il testo invece che dove
+   finisce la colonna. Un filo che si ferma a meta' sembra un errore.
+   margin-block:auto centra il blocco nell'aria che avanza: l'altezza e' fissa,
+   e sui pannelli piu' corti tutto il vuoto in fondo pesava da una parte sola. */
+.dettaglio__dentro{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,2fr);
+  gap:clamp(22px,3.6vw,74px);align-items:stretch;min-height:0;margin-block:auto}
+.dettaglio__testa{border-right:1px solid var(--line-soft);padding-right:clamp(18px,2.6vw,44px)}
+.dettaglio__no{font-family:var(--ff-m);font-size:.68rem;letter-spacing:.14em;color:var(--red);
+  margin-bottom:12px;line-height:1.5}
+.dettaglio h3{font-size:clamp(1.55rem,2.3vw,2.35rem);line-height:1.04;letter-spacing:-.015em;
+  margin-bottom:14px}
+.dettaglio__lead{color:#cfcfd4;font-size:.95rem;line-height:1.58}
+
+.dettaglio__gruppi{display:grid;align-content:start;min-height:0}
+.dettaglio__gruppo + .dettaglio__gruppo{margin-top:clamp(14px,1.6vw,22px);
+  padding-top:clamp(14px,1.6vw,22px);border-top:1px solid var(--line-soft)}
+.dettaglio__gruppo h4{font-family:var(--ff-m);font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--muted-d);font-weight:400;margin-bottom:10px}
+
+/* Le categorie non sono piu' pastiglie ma una corsa di parole separate da un
+   punto rosso, come un blocco di crediti. Diciannove pastiglie occupavano
+   cinque righe di riquadri; le stesse diciannove parole ne occupano tre e si
+   leggono come un elenco invece che come un pannello di comandi. Le pastiglie
+   restano sulle schede chiuse, dove sono quattro e fanno da assaggio: cosi' le
+   due cose si distinguono anche a colpo d'occhio. */
+.elenco-corsa{list-style:none;font-family:var(--ff-d);font-weight:500;
+  font-size:clamp(.95rem,1.05vw,1.06rem);letter-spacing:.015em;line-height:1.72;color:#cfcfd4}
+.elenco-corsa li{display:inline}
+/* spazio unificatore prima del punto e spazio normale dopo: il punto resta
+   incollato alla parola che separa e non va mai a capo da solo a inizio riga,
+   mentre l'andata a capo puo' avvenire subito dopo. Con uno spazio normale da
+   tutte e due le parti capitava di leggere righe che cominciavano con "· Moda". */
+.elenco-corsa li::after{content:"\00a0· ";color:var(--red)}
+.elenco-corsa li:last-child::after{content:""}
+
+/* "Cosa comprende" resta un elenco spuntato: sono cose che ricevi, non
+   categorie, e la spunta lo dice. Su piu' colonne per starci in altezza. */
+.elenco-spunta{list-style:none;display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:7px clamp(16px,1.8vw,30px)}
+.elenco-spunta li{position:relative;padding-left:20px;color:#cfcfd4;font-size:.92rem;line-height:1.4}
+.elenco-spunta li::before{content:"✓";position:absolute;left:0;top:0;color:var(--red);font-size:.78rem}
+
+.indietro{display:inline-flex;align-items:center;gap:9px;min-height:44px;color:var(--red);
+  font-family:var(--ff-m);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase}
+.indietro svg{width:15px;height:15px;transition:transform .3s var(--ease)}
+.indietro:hover svg{transform:translateX(-4px)}
+.indietro:focus-visible{outline:2px solid var(--red);outline-offset:4px}
+.dettaglio__coda{border-top:1px solid var(--line-soft);margin-top:clamp(22px,2.6vw,34px);padding-top:10px}
+
+/* Non var(--ease): quella e' una expo-out molto sbilanciata in avanti — a
+   meta' corsa il ritaglio era gia' al 98% e il verso non si vedeva. Qui il
+   verso E' il messaggio, quindi serve una curva che spenda il tempo in mezzo.
+   E la chiusura e' piu' corta dell'apertura: uscire deve costare meno. */
+.dettaglio.si-apre{animation:apreServizio .48s cubic-bezier(.4,0,.2,1) both}
+.dettaglio.si-chiude{animation:apreServizio .3s cubic-bezier(.4,0,.2,1) reverse both}
+.dettaglio[data-dettaglio="1"]{--da:inset(0% 66.667% 0% 0%)}
+.dettaglio[data-dettaglio="2"]{--da:inset(0% 33.333% 0% 33.333%)}
+.dettaglio[data-dettaglio="3"]{--da:inset(0% 0% 0% 66.667%)}
+@keyframes apreServizio{from{clip-path:var(--da)}to{clip-path:inset(0% 0% 0% 0%)}}
+
+/* A piu' colonne schede e pannello devono stare nella STESSA riga, e la
+   posizione va detta a tutti e sei. Due errori presi qui a distanza di dieci
+   minuti, tutti e due invisibili nel sorgente:
+   1. senza riga sulle schede, la griglia trovava la prima occupata dal
+      pannello e le spingeva in quella sotto — il pannello si apriva sopra a
+      un buco alto quanto le schede;
+   2. con la riga ma senza la colonna, le schede cercavano un posto libero
+      nella riga 1, non lo trovavano (i tre pannelli tengono tutte e tre le
+      colonne) e la griglia ne inventava altre tre: sei colonne, il pannello
+      largo settantasei pixel.
+   Chi si sovrappone a qualcosa va piazzato a mano, tutto quanto.
+   E vale solo col JavaScript acceso (html.js): senza, i pannelli sono tutti
+   aperti e impilarli nella stessa riga li metterebbe uno sull'altro. */
+@media(min-width:901px){
+  html.js .servizi > .scheda,html.js .servizi > .dettaglio{grid-row:1}
+  html.js .servizi > .scheda[data-scheda="1"]{grid-column:1}
+  html.js .servizi > .scheda[data-scheda="2"]{grid-column:2}
+  html.js .servizi > .scheda[data-scheda="3"]{grid-column:3}
+  .servizi.is-aperta .scheda{align-self:start}
+  .scheda.e-coperta{visibility:hidden}
+}
+
 @media(max-width:900px){
   .servizi{grid-template-columns:1fr;border-left:0}
   .scheda{border-right:0}
+  .dettaglio{border-right:0;padding-left:0;padding-right:0}
+  /* a una colonna sola le due parti si rimettono in fila e il filo verticale
+     fra loro diventa una riga sotto al titolo */
+  .dettaglio__dentro{grid-template-columns:1fr;gap:20px}
+  .dettaglio__testa{border-right:0;padding-right:0;padding-bottom:18px;
+    border-bottom:1px solid var(--line-soft)}
+  /* A una colonna sola non c'e' niente da coprire: le schede stanno una sopra
+     l'altra e il pannello prende il loro posto invece di appoggiarcisi sopra.
+     visibility:hidden lascerebbe il vuoto delle tre schede sopra al pannello. */
+  .servizi.is-aperta .scheda{display:none}
+  /* a una colonna sola il verso non vuol dire piu' niente: le schede stanno
+     una sopra l'altra, non a sinistra e a destra. Si apre e basta. */
+  .dettaglio[data-dettaglio]{--da:inset(0% 0% 0% 0%)}
 }
+/* Con "riduci animazioni" il pannello compare senza il ritaglio: ci pensa gia'
+   la regola generale piu' su (*{animation:none!important}), e main.js lo sa —
+   li' animationend non arriva e il seguito viene chiamato lo stesso. */
 
 /* ---------- lo strato di sotto ---------- */
 /* Il margine laterale NON sta qui ma sul contenuto: il nastro dei loghi usa
    la stessa fascia e deve andare da bordo a bordo, mentre la frase va
    rientrata. Metterlo sulla fascia li obbligherebbe alla stessa misura. */
 .strato-sotto{position:relative;overflow:hidden;background:#101015}
-/* Il nastro "Lavoriamo con" e' una fascia di sotto anche lui, ma senza
-   parallasse: scorre gia' da solo ed e' trascinabile, e sommare due
-   movimenti sullo stesso elemento li fa litigare. Qui la profondita' la
-   fanno il colore piu' chiaro e le ombre sui bordi, che bastano. */
+/* Il nastro degli strumenti e' una fascia di sotto anche lui, e dal 2026-08-30
+   ha la parallasse come l'altra. Il movimento sta sul contenitore
+   (.strato-sotto__dentro) e non sul nastro: il nastro ha gia' un transform suo
+   — lo scorrimento automatico e il trascinamento col dito — e due
+   trasformazioni sullo stesso elemento si sovrascrivono a vicenda. */
 .proof.strato-sotto{background:#101015}
 .strato-sotto::before,.strato-sotto::after{content:"";position:absolute;left:0;right:0;height:80px;
   pointer-events:none;z-index:2}
@@ -819,25 +1002,34 @@ html.flat .hero{min-height:520px}
 .strato-sotto::after{bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.85))}
 .strato-sotto__dentro{position:relative;z-index:1;will-change:transform}
 
+/* 2026-08-30 — restano le due righe e basta. Il filo rosso verticale e
+   l'etichetta "Segue il metodo" sotto erano due modi di dire la stessa cosa
+   che la frase dice gia' da sola, e in mezzo a una fascia che deve leggersi
+   come una pausa facevano rumore. */
 .divisore{padding:clamp(64px,8vw,130px) clamp(16px,3.2vw,56px);display:grid;place-items:center;
   text-align:center;margin:0}
 .divisore blockquote{margin:0;font-family:var(--ff-titolo);font-style:italic;
   font-size:clamp(1.9rem,4.6vw,3.6rem);line-height:1.14;color:#fff;max-width:26ch}
 .divisore__due{color:var(--red)}
-.divisore figcaption{font-family:var(--ff-m);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;
-  color:var(--muted-d);margin-top:24px}
-.divisore__filo{width:1px;height:clamp(34px,5vw,64px);background:linear-gradient(var(--red),transparent);
-  margin-bottom:28px}
 
 /* ---------- gli otto passi ---------- */
-.metodo{display:grid;grid-template-columns:repeat(4,1fr);border-left:1px solid var(--line-soft);
+/* 2026-08-30 — minmax(0,1fr) e non 1fr. "1fr" vale "minmax(auto,1fr)": la
+   colonna non puo' scendere sotto il contenuto piu' largo che ha dentro, e i
+   visualini hanno larghezze minime diverse (il pannello Notion 320, la posta
+   in arrivo 230). A due colonne una diventava piu' stretta dell'altra —
+   quattro righe storte su telefono. Con minmax(0,...) le colonne sono pari
+   per definizione e a stringersi e' il contenuto. */
+.metodo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-left:1px solid var(--line-soft);
   border-top:1px solid var(--line)}
-.passo{border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);
+.passo{min-width:0;border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);
   padding:clamp(20px,1.9vw,30px);display:flex;flex-direction:column;gap:14px;
   transition:background .4s var(--ease)}
 .passo:hover{background:rgba(255,255,255,.02)}
 .passo__no{font-family:var(--ff-m);font-size:.72rem;letter-spacing:.12em;color:var(--red)}
-.passo h4{font-family:var(--ff-titolo);font-weight:400;font-size:1.32rem;line-height:1.12}
+/* 2026-08-30 — h3 e non piu' h4: sopra c'e' l'h2 della sezione e non c'e'
+   niente in mezzo. Chi legge con lo schermo si sposta di titolo in titolo e
+   un livello saltato gli fa credere che manchi qualcosa. */
+.passo h3{font-family:var(--ff-titolo);font-weight:400;font-size:1.32rem;line-height:1.12}
 .passo p{color:var(--muted);font-size:.87rem;line-height:1.5}
 /* 200px: il pannello Notion del quarto passo e' il piu' alto di tutti
    (184px) e a meno di cosi' veniva tagliato. La misura la detta il
@@ -845,12 +1037,23 @@ html.flat .hero{min-height:520px}
 .passo__fig{height:200px;display:flex;align-items:center;justify-content:center;overflow:hidden;
   border:1px solid var(--line-soft);background:rgba(255,255,255,.015)}
 .passo__fig > *{transform:scale(.94);transform-origin:center}
+/* 2026-08-30 — il pannello Notion e' piu' alto della cella e centrato veniva
+   tagliato sopra e sotto: si perdeva la barra col titolo, cioe' la cosa che
+   lo fa riconoscere come uno spazio di lavoro. Appoggiato in alto si vede
+   tutto quello che conta e il taglio cade in fondo, dove l'elenco continua da
+   solo. La sfumatura serve a dichiararlo: un bordo netto sembra un errore,
+   una dissolvenza sembra una scelta. */
+.passo__fig--alto{align-items:flex-start;position:relative}
+.passo__fig--alto > *{transform-origin:top center}
+.passo__fig--alto::after{content:"";position:absolute;left:0;right:0;bottom:0;height:52px;
+  background:linear-gradient(transparent,var(--bg));pointer-events:none}
 /* il cuore della partnership e' l'unico visualino senza misura propria:
    il suo svg e' width:100% e dentro una cella larga si gonfia */
 .passo__fig .tlv-heart{width:44px;height:44px;flex:none}
 .passo__fig .tl__visual{width:100%;max-width:100%;min-height:0}
-@media(max-width:1100px){.metodo{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:1100px){.metodo{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){
   .passo__fig{height:150px}
   .passo__fig > *{transform:scale(.66)}
+  .passo__fig--alto::after{height:38px}
 }
