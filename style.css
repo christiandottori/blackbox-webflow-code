@@ -891,11 +891,11 @@ html.flat .hero{min-height:520px}
   position:relative;z-index:3;background:var(--bg)}
 /* la riga di luce e' lo spigolo del pannello: senza, il bordo sparisce
    nel nero e il pannello non ha spessore */
-.sez-editoriale::before,.sez-editoriale::after{content:"";position:absolute;left:0;right:0;
-  height:1px;background:rgba(255,255,255,.13)}
-.sez-editoriale::before{top:0}
-.sez-editoriale::after{bottom:0}
-.sez-editoriale + .sez-editoriale::before{display:none}
+/* 2026-08-31 — via le righe di luce ai bordi delle sezioni: il filetto
+   orizzontale deve voler dire "riga che si tocca" (le schede, le voci),
+   non "confine di sezione" — ai bordi faceva sembrare ogni sezione una
+   scheda sparita. Scelta di Nicolas, vista dal telefono. */
+.sez-editoriale::before,.sez-editoriale::after{display:none}
 
 /* ---------- testata: un sommario da giornale ---------- */
 .masthead{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(28px,5vw,90px);
@@ -1102,13 +1102,16 @@ html:not(.js) .scheda__apri,html:not(.js) .indietro{display:none}
    dal nero della pagina e le sezioni non si spezzavano. Alzata due volte nello
    stesso giorno (#1b1b22 era ancora poco). Piu' chiara = piu' profonda, e' la
    regola di questo sito. */
-.strato-sotto{position:relative;overflow:hidden;background:#26262e}
+/* 2026-08-31 — la fascia non e' piu' una lastra piatta: e' uno strato
+   curvo che prende luce al centro (piu' chiaro, verso il bianco) e
+   sprofonda nello scuro ai bordi. La profondita' si fa col chiaro. */
+.strato-sotto{position:relative;overflow:hidden;background:linear-gradient(180deg,#141419 0%,#3c3c47 22%,#55555f 50%,#3c3c47 78%,#141419 100%)}
 /* Il nastro degli strumenti e' una fascia di sotto anche lui, e dal 2026-08-30
    ha la parallasse come l'altra. Il movimento sta sul contenitore
    (.strato-sotto__dentro) e non sul nastro: il nastro ha gia' un transform suo
    — lo scorrimento automatico e il trascinamento col dito — e due
    trasformazioni sullo stesso elemento si sovrascrivono a vicenda. */
-.proof.strato-sotto{background:#26262e}
+.proof.strato-sotto{background:linear-gradient(180deg,#141419 0%,#3c3c47 22%,#55555f 50%,#3c3c47 78%,#141419 100%)}
 .strato-sotto::before,.strato-sotto::after{content:"";position:absolute;left:0;right:0;height:80px;
   pointer-events:none;z-index:2}
 .strato-sotto::before{top:0;background:linear-gradient(rgba(0,0,0,.85),transparent)}
@@ -1208,14 +1211,12 @@ html.volo .sez-chi--scena{height:860svh}
 .sez-editoriale.sez-chi--scena{padding-left:0;padding-right:0}
 html.volo .sez-chi--scena>.chi-pin{position:sticky;top:0;height:100svh;overflow:hidden}
 
-/* le righe di luce seguono il pannello inchiodato */
+/* niente righe di luce nemmeno sul pannello inchiodato (2026-08-31):
+   il filetto e' delle righe che si toccano, non dei confini */
 html.volo .sez-chi--scena::before,
-html.volo .sez-chi--scena::after{display:none}
+html.volo .sez-chi--scena::after,
 html.volo .sez-chi--scena>.chi-pin::before,
-html.volo .sez-chi--scena>.chi-pin::after{content:"";position:absolute;left:0;right:0;
-  height:1px;background:rgba(255,255,255,.13);z-index:4}
-html.volo .sez-chi--scena>.chi-pin::before{top:0}
-html.volo .sez-chi--scena>.chi-pin::after{bottom:0}
+html.volo .sez-chi--scena>.chi-pin::after{display:none}
 
 /* ---------- due metà: il testo a sinistra, la carta a destra ----------
    Non piu' tre colonne con la roba sparsa attorno: una colonna sola di
@@ -1227,8 +1228,11 @@ html.volo .sez-chi--scena>.chi-pin::after{bottom:0}
      esiste piu' — ancorato, non occupa una riga — e tenerla vuota
      lasciava DUE interspazi di griglia da 22px a pagare per niente. */
   grid-template-rows:auto 1fr;
-  gap:clamp(8px,1.6svh,20px) clamp(28px,4vw,64px);
-  padding:clamp(16px,2.8svh,46px) clamp(16px,3.2vw,56px)}
+  gap:clamp(6px,1.3svh,20px) clamp(28px,4vw,64px);
+  /* la barra di navigazione e' fissa e non si nasconde mai: il pannello
+     inchiodato le starebbe sotto per tutto il racconto, cappello coperto.
+     Quindi si parte sotto di lei: 84px minimi sopra, meno sotto. */
+  padding:clamp(84px,10svh,108px) clamp(16px,3.2vw,56px) clamp(14px,2.2svh,40px)}
 .scena__tela{position:absolute;inset:0;width:100%;height:100%;z-index:0}
 
 /* La velatura sotto la colonna di lettura. Con la carta accesa il testo
@@ -1242,13 +1246,13 @@ html.volo .sez-chi--scena>.chi-pin::after{bottom:0}
 
 /* ---------- la testa ---------- */
 .scena__testa{grid-column:1;grid-row:1}
-.chi__no--forte{font-size:.8rem;letter-spacing:.2em;color:#fff;
+.sez-chi--scena .chi__no--forte{font-size:clamp(.62rem,1.3svh,.8rem);letter-spacing:.2em;color:#fff;
   display:inline-flex;align-items:center;gap:11px;margin-bottom:clamp(6px,1.2svh,14px)}
-.chi__no--forte::before{content:"";width:24px;height:2px;background:var(--red);flex:none}
+.sez-chi--scena .chi__no--forte::before{content:"";width:24px;height:2px;background:var(--red);flex:none}
 /* NIENTE rimpicciolimenti: il titolo usa la stessa scala del resto della
    home (.chi__titolo base: clamp(2.1rem,4.2vw,3.6rem)). Era stato ridotto
    a 2.3rem ed era l'unica testata piccola di tutta la pagina. */
-.scena__testa .chi__titolo{font-size:clamp(1.45rem,min(3.6vw,5.2svh),3.4rem);
+.scena__testa .chi__titolo{font-size:clamp(1.3rem,min(5.6vw,8svh),4.6rem);
   margin-bottom:0;line-height:1.04}
 /* il paragrafo di presentazione: sta sotto il titolo, si legge nella
    lunga sosta iniziale su Como e si ritira quando la lista ha bisogno
@@ -1261,14 +1265,14 @@ html.volo .sez-chi--scena>.chi-pin::after{bottom:0}
    Una riga per battuta: numerale, titolo, e una riga sola di spiegazione.
    Interlinea stretta e filetti sottili — sette voci devono stare in una
    colonna senza sembrare un modulo da compilare. */
-.passi{grid-column:1;grid-row:2;list-style:none;counter-reset:passo;
+.sez-chi--scena .passi{grid-column:1;grid-row:2;list-style:none;counter-reset:passo;
   align-self:start;display:flex;flex-direction:column;margin-top:clamp(4px,1svh,20px)}
 /* il cappello: una riga di servizio col suo filo rosso, che intitola la
    colonna e spiega i numerali romani prima che arrivino */
-.passi__capo{display:flex;align-items:center;gap:10px;margin:0 0 clamp(5px,1svh,10px);
+.sez-chi--scena .passi__capo{display:flex;align-items:center;gap:10px;margin:0 0 clamp(3px,1svh,10px);
   font-family:var(--ff-m);font-size:clamp(.56rem,1.15svh,.66rem);letter-spacing:.16em;
   text-transform:uppercase;color:rgba(255,96,96,.85)}
-.passi__capo::before{content:"";width:26px;height:1px;background:var(--red);flex:none}
+.sez-chi--scena .passi__capo::before{content:"";width:26px;height:1px;background:var(--red);flex:none}
 /* ATTENZIONE AL NOME: .passo esiste gia' nel sito — e' la scheda della
    griglia del metodo (sezione 01) — e le sue regole arrivano fin qui:
    bordo destro, bordo sotto su OGNI riga, sfondo al passaggio del mouse.
@@ -1276,28 +1280,28 @@ html.volo .sez-chi--scena>.chi-pin::after{bottom:0}
    Como, quarta figlia, era l'unica senza bordo destro per colpa del suo
    nth-child(4n)). Qui si azzera tutto: restano solo i divisori,
    uno sopra a ogni riga e uno sotto l'ultima. */
-.passo{position:relative;display:grid;grid-template-columns:2.9ch minmax(0,1fr);gap:0 12px;
-  padding:clamp(5px,1.1svh,12px) 0;border-top:1px solid rgba(255,255,255,.08);
+.sez-chi--scena .passo{position:relative;display:grid;grid-template-columns:2.9ch minmax(0,1fr);gap:0 12px;
+  padding:clamp(3px,0.75svh,12px) 0;border-top:1px solid rgba(255,255,255,.08);
   border-right:0;border-bottom:0;border-left:0;
   opacity:var(--op,1);transform:translateX(calc(var(--d,0) * -1px))}
 .scena .passo:hover{background:none}   /* le righe non sono bottoni */
-.passo:last-child{border-bottom:1px solid rgba(255,255,255,.08)}
+.sez-chi--scena .passo:last-child{border-bottom:1px solid rgba(255,255,255,.08)}
 /* la riga di cui il globo sta parlando ADESSO porta un segno rosso nel
    margine, fuori dal blocco del testo: niente si sposta, si accende */
-.passo::after{content:"";position:absolute;left:-16px;top:clamp(7px,1.4svh,13px);bottom:clamp(7px,1.4svh,13px);width:2px;
+.sez-chi--scena .passo::after{content:"";position:absolute;left:-16px;top:clamp(7px,1.4svh,13px);bottom:clamp(7px,1.4svh,13px);width:2px;
   background:var(--red);box-shadow:0 0 9px var(--red-glow);
   opacity:0;transition:opacity .4s var(--ease)}
-.passo.att::after{opacity:1}
-.passo::before{content:counter(passo,upper-roman);counter-increment:passo;
+.sez-chi--scena .passo.att::after{opacity:1}
+.sez-chi--scena .passo::before{content:counter(passo,upper-roman);counter-increment:passo;
   grid-column:1;grid-row:1/3;font-family:var(--ff-m);font-size:clamp(.6rem,1.3svh,.72rem);
   letter-spacing:.08em;color:rgba(255,42,42,.66);padding-top:.35em;
   text-align:right;transition:color .4s var(--ease)}
-.passo.att::before{color:var(--red)}
-.passo b{grid-column:2;font-family:var(--ff-d);font-weight:500;color:rgba(255,255,255,.85);
-  font-size:clamp(.9rem,2.2svh,1.12rem);letter-spacing:.012em;line-height:1.28;transition:color .4s var(--ease)}
-.passo.att b{color:#fff}
-.passo span{grid-column:2;color:var(--muted);font-weight:300;
-  font-size:clamp(.72rem,1.75svh,.88rem);line-height:1.4;margin-top:2px}
+.sez-chi--scena .passo.att::before{color:var(--red)}
+.sez-chi--scena .passo b{grid-column:2;font-family:var(--ff-d);font-weight:500;color:rgba(255,255,255,.85);
+  font-size:clamp(.8rem,2.05svh,1.12rem);letter-spacing:.012em;line-height:1.28;transition:color .4s var(--ease)}
+.sez-chi--scena .passo.att b{color:#fff}
+.sez-chi--scena .passo span{grid-column:2;color:var(--muted);font-weight:300;
+  font-size:clamp(.64rem,1.6svh,.88rem);line-height:1.4;margin-top:2px}
 
 /* ---------- il bottone: agganciato al bordo del pannello ----------
    NON sta piu' in fondo alla colonna. Li' dipendeva dall'altezza della
@@ -1308,10 +1312,10 @@ html.volo .sez-chi--scena>.chi-pin::after{bottom:0}
    (.scena .scena__tasto e non .scena__tasto: la regola qui sopra che da'
    position:relative a tutti i figli vince su una classe sola.) */
 .scena .scena__tasto{position:absolute;left:clamp(16px,3.2vw,56px);
-  bottom:clamp(16px,4.6svh,48px);z-index:3;
+  bottom:clamp(14px,3.6svh,44px);z-index:3;
   width:min(420px,44vw);
   display:flex;flex-direction:row;justify-content:space-between;align-items:center;
-  gap:24px;padding:clamp(10px,1.8svh,16px) clamp(16px,2.6svh,24px);
+  gap:24px;padding:clamp(9px,1.8svh,16px) clamp(16px,2.6svh,24px);
   font-size:clamp(.9rem,1.95svh,1.08rem);
   opacity:var(--op,1);transform:translateY(calc(var(--d,0) * 1px))}
 .scena__tasto svg{width:30px;height:13px;transition:transform .35s var(--ease)}
@@ -1337,15 +1341,67 @@ html.volo .sez-chi--scena.in-scena .scena__tela{pointer-events:none;touch-action
      dal passaggio della sezione davanti allo schermo. */
   html.volo .sez-chi--scena{height:auto}
   html.volo .sez-chi--scena>.chi-pin{position:static;height:auto}
-  html.volo .sez-chi--scena>.chi-pin::before,
-  html.volo .sez-chi--scena>.chi-pin::after{display:none}
-  html.volo .sez-chi--scena::before,
-  html.volo .sez-chi--scena::after{display:block}
   .scena{display:flex;flex-direction:column;gap:clamp(18px,3.4vw,28px);
     padding:clamp(40px,7vw,64px) clamp(16px,3.2vw,56px) clamp(44px,7vw,72px)}
   .scena::before{display:none}
-  .scena__tela{position:relative;inset:auto;height:52svh;order:-1}
-  .passo,.scena__tasto,.scena__lead{opacity:1!important;transform:none!important}
+  /* l'ordine del racconto impilato: prima la testata (titolo e
+     presentazione), poi il globo, poi le sette tappe */
+  .scena__testa{order:-1}
+  .scena__tela{position:relative;inset:auto;height:52svh}
+  .sez-chi--scena .passo,.scena__tasto,.scena__lead{opacity:1!important;transform:none!important}
   .scena .scena__tasto{position:static;width:100%;margin-top:8px}
-  .passo::after{display:none}   /* senza pin non c'e' una riga "attiva" */
+  .sez-chi--scena .passo::after{display:none}
+  /* Impilata, la colonna e' una sezione mobile come le altre: i corpi
+     in svh sono tarati sul pannello inchiodato del desktop e qui
+     facevano il titolo mezzo rispetto alle sezioni sorelle. */
+  .sez-chi--scena .scena__testa .chi__titolo{font-size:clamp(2.2rem,8vw,3rem)}
+  .sez-chi--scena .chi__no--forte{font-size:.74rem}
+  .sez-chi--scena .passi{padding:0}
+  .sez-chi--scena .passi__capo{font-size:.64rem;margin:0 0 8px}
+  .sez-chi--scena .passo{padding:12px 0}
+  .sez-chi--scena .passo b{font-size:1.08rem}
+  .sez-chi--scena .passo span{font-size:.9rem}
+  .sez-chi--scena .scena__lead{font-size:.95rem}
+  /* interattivo anche col quadro fermo: pan-y lascia lo scroll verticale
+     al dito, il gesto orizzontale gira il globo. L'important serve contro
+     la regola in-scena del racconto, piu' specifica, che qui non c'entra. */
+  .sez-chi--scena .scena__tela{pointer-events:auto!important;touch-action:pan-y}
+  /* applica(1) richiude la presentazione (max-height 0): qui resta aperta */
+  .sez-chi--scena .scena__lead{max-height:none!important;margin-top:14px!important}   /* senza pin non c'e' una riga "attiva" */
+}
+
+
+/* ===================================================================
+   Sezione 01 su mobile: ritocchi del 2026-08-31 (chiesti da Nicolas)
+   La scheda diceva tutto ma non sembrava toccabile: l'unico segnale
+   era la scritta rossa. E i riquadrini dei tag erano il doppione
+   dell'elenco che il pannello dice subito dopo.
+   =================================================================== */
+/* i bottoni della 01 sono ROSSI PIENI come "Scopri chi siamo":
+   sia il "Tutti i servizi" delle schede sia l'INDIETRO dei pannelli.
+   Un bordo sottile non bastava a dire "toccami". */
+.scheda__apri,.indietro{background:var(--red);color:#fff;border:0;
+  padding:12px 18px;box-shadow:0 10px 30px var(--red-glow)}
+.scheda__apri:hover,.indietro:hover{background:#ff3b3b}
+/* i riquadrini dei tag: doppioni dell'elenco del pannello, OVUNQUE
+   (prima erano via solo su mobile; visti dal PC, stessa storia) */
+.servizi .scheda .tag-riga{display:none}
+
+@media(max-width:900px){
+  /* la scheda intera si tocca: il bottone stende la sua area di tocco
+     su tutta la scheda e diventa una riga piena, freccia al margine */
+  .servizi .scheda{position:relative}
+  .servizi .scheda__apri{align-self:stretch;display:flex;width:100%;
+    justify-content:space-between;align-items:center;padding:14px 16px}
+  .servizi .scheda__apri::after{content:"";position:absolute;inset:0}
+  /* i riquadrini dei tag: doppioni, via */
+  /* l'INDIETRO resta a portata di mano per tutto il pannello. Non puo'
+     essere sticky (l'overflow del ritaglio lo imprigiona) e nemmeno
+     fisso in alto: la barra di navigazione ha un'altezza diversa da
+     telefono a telefono e lo mangiava. In fondo allo schermo: barra
+     piena a portata di pollice, mai dietro niente, mai sopra la riga
+     che si sta leggendo. Vive solo col pannello aperto. */
+  .dettaglio .indietro{position:fixed;top:auto;left:16px;right:16px;
+    bottom:calc(14px + env(safe-area-inset-bottom));width:auto;
+    justify-content:center;z-index:60}
 }

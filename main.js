@@ -2164,6 +2164,17 @@
       if (!giro) giro = requestAnimationFrame(passo);
     }
 
+    /* Su mobile il racconto non si racconta: la scena impilata scorre in
+       una schermata e la camera volerebbe da Como al mondo in un lampo.
+       Quadro fermo sul finale: globo aperto, rotte accese, lista intera
+       (la forza gia' il CSS). La spinta a destra serve alla colonna
+       desktop: sul telefono il fuoco torna al centro. */
+    if (window.matchMedia('(max-width:1040px)').matches) {
+      window.BB02.spinta = function () { return -0.381; };
+      applica(1);
+      return;
+    }
+
     window.addEventListener('scroll', chiedi, { passive: true });
     window.addEventListener('resize', chiedi);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(chiedi);
