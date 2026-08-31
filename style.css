@@ -1,4 +1,4 @@
-﻿/* ====================================================================
+/* ====================================================================
    BlackBox — style.css  (rounded / cinematic / black+red)
    ==================================================================== */
 
@@ -521,8 +521,8 @@ body.intro-done .hero__scroll{opacity:1}
    FOOTER
    ==================================================================== */
 .footer{max-width:var(--maxw);margin:0 auto;padding:clamp(50px,7vw,90px) var(--pad) clamp(84px,9vw,104px);border-top:1px solid var(--line);overflow:hidden}
-.footer__big{font-family:var(--ff-brand);font-weight:500;font-size:clamp(2.6rem,15vw,11rem);line-height:.9;letter-spacing:-.01em;display:flex;align-items:flex-end;color:#fff}
-.footer__big .logo__dot{width:clamp(9px,2.3vw,24px);height:clamp(9px,2.3vw,24px);margin-bottom:.18em;margin-left:.1em}
+/* .footer__big non esiste piu': il marchio gigante e' uscito da tutti
+   i footer il 2026-08-31, e le sue regole con lui. */
 .footer__cols{display:flex;flex-wrap:wrap;gap:40px 70px;margin-top:46px}
 .footer__col{display:flex;flex-direction:column;gap:12px}
 .footer__h{font-family:var(--ff-d);font-size:.72rem;text-transform:uppercase;letter-spacing:.16em;color:var(--muted-d);margin-bottom:4px}
@@ -1174,4 +1174,178 @@ html:not(.js) .scheda__apri,html:not(.js) .indietro{display:none}
   .passo__fig{height:150px}
   .passo__fig > *{transform:scale(.66)}
   .passo__fig--alto::after{height:38px}
+}
+
+
+/* ===================================================================
+   02 - CHI SIAMO: la scena del viaggio (2026-08-31)
+   Aggiunto in coda: il resto del foglio non e' stato toccato.
+   =================================================================== */
+/* ====================================================================
+   02 — CHI SIAMO: la lista che cresce   (bozza 2026-08-31)
+   ====================================================================
+   Una colonna di testo a sinistra e la carta a destra. Non c'e' piu'
+   niente che va e viene sopra la mappa: le righe arrivano una alla
+   volta e restano, e quando ci sono tutte compare il bottone.
+   Il rumore delle versioni prima veniva da tre voci che dicevano la
+   stessa cosa — i riquadri lunghi, il riepilogo e l'etichetta della
+   scala. Adesso la voce e' una.
+   Tutto e' condizionato a html.volo, che lo mette il JavaScript: senza
+   JS, o con le animazioni ridotte, la lista e' tutta visibile e la
+   sezione e' una pagina ferma e leggibile.
+   ==================================================================== */
+
+/* overflow-x:hidden su html e body (la difesa del 2026-08-05) rende body
+   un contenitore di scorrimento, e dentro un contenitore che non scorre
+   position:sticky non si attacca a niente. clip taglia l'orizzontale allo
+   stesso modo ma non apre nessuno scrollport.
+   Nel sito questa riga va nel CSS di base: e' una correzione al foglio. */
+html.volo,html.volo body{overflow-x:clip}
+
+/* 860 e non piu' 700: i 160svh in piu' li spende tutti la seconda meta'
+   del racconto — il giunto sta in nuovo.js, funzione tempo() */
+html.volo .sez-chi--scena{height:860svh}
+.sez-editoriale.sez-chi--scena{padding-left:0;padding-right:0}
+html.volo .sez-chi--scena>.chi-pin{position:sticky;top:0;height:100svh;overflow:hidden}
+
+/* le righe di luce seguono il pannello inchiodato */
+html.volo .sez-chi--scena::before,
+html.volo .sez-chi--scena::after{display:none}
+html.volo .sez-chi--scena>.chi-pin::before,
+html.volo .sez-chi--scena>.chi-pin::after{content:"";position:absolute;left:0;right:0;
+  height:1px;background:rgba(255,255,255,.13);z-index:4}
+html.volo .sez-chi--scena>.chi-pin::before{top:0}
+html.volo .sez-chi--scena>.chi-pin::after{bottom:0}
+
+/* ---------- due metà: il testo a sinistra, la carta a destra ----------
+   Non piu' tre colonne con la roba sparsa attorno: una colonna sola di
+   lettura, larga il giusto, e tutto il resto alla figura. */
+.scena{position:relative;height:100%;
+  display:grid;
+  grid-template-columns:minmax(0,64ch) minmax(0,1fr);
+  /* due righe sole: testa e lista. La terza (il bottone in flusso) non
+     esiste piu' — ancorato, non occupa una riga — e tenerla vuota
+     lasciava DUE interspazi di griglia da 22px a pagare per niente. */
+  grid-template-rows:auto 1fr;
+  gap:clamp(8px,1.6svh,20px) clamp(28px,4vw,64px);
+  padding:clamp(16px,2.8svh,46px) clamp(16px,3.2vw,56px)}
+.scena__tela{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+
+/* La velatura sotto la colonna di lettura. Con la carta accesa il testo
+   bianco su un intrico di linee bianche non si legge: qui il fondo torna
+   nero a sinistra e la figura resta padrona della sua metà. E' piu'
+   decisa di prima apposta — era li' meta' del rumore. */
+.scena::before{content:"";position:absolute;top:0;bottom:0;left:0;width:40%;
+  pointer-events:none;z-index:1;background:linear-gradient(90deg,
+  rgba(6,6,7,.97) 0%,rgba(6,6,7,.95) 58%,rgba(6,6,7,.62) 82%,rgba(6,6,7,0) 100%)}
+.scena>*:not(.scena__tela){position:relative;z-index:2}
+
+/* ---------- la testa ---------- */
+.scena__testa{grid-column:1;grid-row:1}
+.chi__no--forte{font-size:.8rem;letter-spacing:.2em;color:#fff;
+  display:inline-flex;align-items:center;gap:11px;margin-bottom:clamp(6px,1.2svh,14px)}
+.chi__no--forte::before{content:"";width:24px;height:2px;background:var(--red);flex:none}
+/* NIENTE rimpicciolimenti: il titolo usa la stessa scala del resto della
+   home (.chi__titolo base: clamp(2.1rem,4.2vw,3.6rem)). Era stato ridotto
+   a 2.3rem ed era l'unica testata piccola di tutta la pagina. */
+.scena__testa .chi__titolo{font-size:clamp(1.45rem,min(3.6vw,5.2svh),3.4rem);
+  margin-bottom:0;line-height:1.04}
+/* il paragrafo di presentazione: sta sotto il titolo, si legge nella
+   lunga sosta iniziale su Como e si ritira quando la lista ha bisogno
+   della colonna — l'opacita' la guida lo scroll, come le righe */
+.scena__lead{max-width:56ch;margin:14px 0 0;color:var(--muted);
+  font-weight:300;font-size:clamp(.8rem,1.9svh,.95rem);line-height:1.55;
+  overflow:hidden;opacity:var(--op,1)}
+
+/* ---------- la lista che cresce ----------
+   Una riga per battuta: numerale, titolo, e una riga sola di spiegazione.
+   Interlinea stretta e filetti sottili — sette voci devono stare in una
+   colonna senza sembrare un modulo da compilare. */
+.passi{grid-column:1;grid-row:2;list-style:none;counter-reset:passo;
+  align-self:start;display:flex;flex-direction:column;margin-top:clamp(4px,1svh,20px)}
+/* il cappello: una riga di servizio col suo filo rosso, che intitola la
+   colonna e spiega i numerali romani prima che arrivino */
+.passi__capo{display:flex;align-items:center;gap:10px;margin:0 0 clamp(5px,1svh,10px);
+  font-family:var(--ff-m);font-size:clamp(.56rem,1.15svh,.66rem);letter-spacing:.16em;
+  text-transform:uppercase;color:rgba(255,96,96,.85)}
+.passi__capo::before{content:"";width:26px;height:1px;background:var(--red);flex:none}
+/* ATTENZIONE AL NOME: .passo esiste gia' nel sito — e' la scheda della
+   griglia del metodo (sezione 01) — e le sue regole arrivano fin qui:
+   bordo destro, bordo sotto su OGNI riga, sfondo al passaggio del mouse.
+   Era il "riquadro" che si vedeva attorno alle voci (e la provincia di
+   Como, quarta figlia, era l'unica senza bordo destro per colpa del suo
+   nth-child(4n)). Qui si azzera tutto: restano solo i divisori,
+   uno sopra a ogni riga e uno sotto l'ultima. */
+.passo{position:relative;display:grid;grid-template-columns:2.9ch minmax(0,1fr);gap:0 12px;
+  padding:clamp(5px,1.1svh,12px) 0;border-top:1px solid rgba(255,255,255,.08);
+  border-right:0;border-bottom:0;border-left:0;
+  opacity:var(--op,1);transform:translateX(calc(var(--d,0) * -1px))}
+.scena .passo:hover{background:none}   /* le righe non sono bottoni */
+.passo:last-child{border-bottom:1px solid rgba(255,255,255,.08)}
+/* la riga di cui il globo sta parlando ADESSO porta un segno rosso nel
+   margine, fuori dal blocco del testo: niente si sposta, si accende */
+.passo::after{content:"";position:absolute;left:-16px;top:clamp(7px,1.4svh,13px);bottom:clamp(7px,1.4svh,13px);width:2px;
+  background:var(--red);box-shadow:0 0 9px var(--red-glow);
+  opacity:0;transition:opacity .4s var(--ease)}
+.passo.att::after{opacity:1}
+.passo::before{content:counter(passo,upper-roman);counter-increment:passo;
+  grid-column:1;grid-row:1/3;font-family:var(--ff-m);font-size:clamp(.6rem,1.3svh,.72rem);
+  letter-spacing:.08em;color:rgba(255,42,42,.66);padding-top:.35em;
+  text-align:right;transition:color .4s var(--ease)}
+.passo.att::before{color:var(--red)}
+.passo b{grid-column:2;font-family:var(--ff-d);font-weight:500;color:rgba(255,255,255,.85);
+  font-size:clamp(.9rem,2.2svh,1.12rem);letter-spacing:.012em;line-height:1.28;transition:color .4s var(--ease)}
+.passo.att b{color:#fff}
+.passo span{grid-column:2;color:var(--muted);font-weight:300;
+  font-size:clamp(.72rem,1.75svh,.88rem);line-height:1.4;margin-top:2px}
+
+/* ---------- il bottone: agganciato al bordo del pannello ----------
+   NON sta piu' in fondo alla colonna. Li' dipendeva dall'altezza della
+   finestra: in quelle basse (l'artifact con la sua barra, i portatili in
+   scala 125%) finiva sotto il bordo del pin, a opacita' piena ma tagliato
+   via. Ancorato all'angolo in basso a sinistra del pannello non puo'
+   uscire dal quadro per costruzione, a nessuna altezza.
+   (.scena .scena__tasto e non .scena__tasto: la regola qui sopra che da'
+   position:relative a tutti i figli vince su una classe sola.) */
+.scena .scena__tasto{position:absolute;left:clamp(16px,3.2vw,56px);
+  bottom:clamp(16px,4.6svh,48px);z-index:3;
+  width:min(420px,44vw);
+  display:flex;flex-direction:row;justify-content:space-between;align-items:center;
+  gap:24px;padding:clamp(10px,1.8svh,16px) clamp(16px,2.6svh,24px);
+  font-size:clamp(.9rem,1.95svh,1.08rem);
+  opacity:var(--op,1);transform:translateY(calc(var(--d,0) * 1px))}
+.scena__tasto svg{width:30px;height:13px;transition:transform .35s var(--ease)}
+.scena__tasto:hover svg{transform:translateX(6px)}
+
+/* Ne' credito ODbL (va nel footer) ne' "Trascina il globo": la scena
+   non ha piu' didascalie di servizio (2026-08-31). */
+
+/* Niente piu' fasce max-height a scatti: le misure qui sopra sono legate
+   all'altezza della finestra (svh), quindi la colonna si adatta in
+   continuo — a OGNI altezza, non solo a quelle che avevo provato. Era il
+   difetto delle fasce: fra un bordo e l'altro il bottone ancorato
+   finiva sopra la settima riga. */
+
+/* Finche' il racconto va avanti il globo non si trascina: il canvas copre
+   tutto il pannello e con touch-action:none un dito che parte da li' non
+   riuscirebbe a scorrere la pagina. */
+html.volo .sez-chi--scena.in-scena .scena__tela{pointer-events:none;touch-action:pan-y}
+
+@media(max-width:1040px){
+  /* Impilata: la carta in alto, la lista sotto in colonna piena. Niente
+     pin — sarebbe una trappola — ma la carta si apre lo stesso, guidata
+     dal passaggio della sezione davanti allo schermo. */
+  html.volo .sez-chi--scena{height:auto}
+  html.volo .sez-chi--scena>.chi-pin{position:static;height:auto}
+  html.volo .sez-chi--scena>.chi-pin::before,
+  html.volo .sez-chi--scena>.chi-pin::after{display:none}
+  html.volo .sez-chi--scena::before,
+  html.volo .sez-chi--scena::after{display:block}
+  .scena{display:flex;flex-direction:column;gap:clamp(18px,3.4vw,28px);
+    padding:clamp(40px,7vw,64px) clamp(16px,3.2vw,56px) clamp(44px,7vw,72px)}
+  .scena::before{display:none}
+  .scena__tela{position:relative;inset:auto;height:52svh;order:-1}
+  .passo,.scena__tasto,.scena__lead{opacity:1!important;transform:none!important}
+  .scena .scena__tasto{position:static;width:100%;margin-top:8px}
+  .passo::after{display:none}   /* senza pin non c'e' una riga "attiva" */
 }
