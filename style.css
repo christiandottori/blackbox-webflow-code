@@ -920,10 +920,14 @@ html.flat .hero{min-height:520px}
   .sommario{margin-left:0;max-width:none}}
 
 /* ---------- i tre mestieri ---------- */
-.servizi{display:grid;grid-template-columns:repeat(3,1fr);border-left:1px solid var(--line-soft)}
+/* 2026-08-31 — niente cornice esterna: il sito non ha margini e le due righe
+   verticali ai bordi facevano sembrare la pagina tagliata. I filetti restano
+   solo FRA le schede: l'ultima colonna perde il border-right. */
+.servizi{display:grid;grid-template-columns:repeat(3,1fr)}
 .scheda{border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);
   padding:clamp(26px,2.6vw,40px);display:flex;flex-direction:column;gap:16px;position:relative;
   transition:background .4s var(--ease)}
+.scheda[data-scheda="3"]{border-right:0}
 .scheda:hover{background:rgba(255,255,255,.018)}
 .scheda::before{content:"";position:absolute;left:0;top:-1px;height:2px;width:0;background:var(--red);
   transition:width .5s var(--ease)}
@@ -965,7 +969,7 @@ html.flat .hero{min-height:520px}
    dentro se stesso e' una scatola dentro una scatola. La misura giusta si fa
    con l'impaginazione — vedi dettaglio__dentro qui sotto. */
 .dettaglio{grid-column:1/-1;z-index:2;background:var(--bg);
-  border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);
+  border-bottom:1px solid var(--line-soft);
   padding:clamp(22px,2.2vw,36px);
   position:relative;display:flex;flex-direction:column;gap:clamp(12px,1.3vw,18px);
   min-height:0;overflow:hidden}
@@ -1072,7 +1076,7 @@ html:not(.js) .scheda__apri,html:not(.js) .indietro{display:none}
 @media(max-width:900px){
   .servizi{grid-template-columns:1fr;border-left:0}
   .scheda{border-right:0}
-  .dettaglio{border-right:0;padding-left:0;padding-right:0}
+  .dettaglio{padding-left:0;padding-right:0}
   /* a una colonna sola le due parti si rimettono in fila e il filo verticale
      fra loro diventa una riga sotto al titolo */
   .dettaglio__dentro{grid-template-columns:1fr;gap:20px}
@@ -1094,13 +1098,17 @@ html:not(.js) .scheda__apri,html:not(.js) .indietro{display:none}
 /* Il margine laterale NON sta qui ma sul contenuto: il nastro dei loghi usa
    la stessa fascia e deve andare da bordo a bordo, mentre la frase va
    rientrata. Metterlo sulla fascia li obbligherebbe alla stessa misura. */
-.strato-sotto{position:relative;overflow:hidden;background:#101015}
+/* 2026-08-31 — da #101015 a #26262e: a 16/255 la fascia si distingueva appena
+   dal nero della pagina e le sezioni non si spezzavano. Alzata due volte nello
+   stesso giorno (#1b1b22 era ancora poco). Piu' chiara = piu' profonda, e' la
+   regola di questo sito. */
+.strato-sotto{position:relative;overflow:hidden;background:#26262e}
 /* Il nastro degli strumenti e' una fascia di sotto anche lui, e dal 2026-08-30
    ha la parallasse come l'altra. Il movimento sta sul contenitore
    (.strato-sotto__dentro) e non sul nastro: il nastro ha gia' un transform suo
    — lo scorrimento automatico e il trascinamento col dito — e due
    trasformazioni sullo stesso elemento si sovrascrivono a vicenda. */
-.proof.strato-sotto{background:#101015}
+.proof.strato-sotto{background:#26262e}
 .strato-sotto::before,.strato-sotto::after{content:"";position:absolute;left:0;right:0;height:80px;
   pointer-events:none;z-index:2}
 .strato-sotto::before{top:0;background:linear-gradient(rgba(0,0,0,.85),transparent)}
@@ -1124,11 +1132,15 @@ html:not(.js) .scheda__apri,html:not(.js) .indietro{display:none}
    in arrivo 230). A due colonne una diventava piu' stretta dell'altra —
    quattro righe storte su telefono. Con minmax(0,...) le colonne sono pari
    per definizione e a stringersi e' il contenuto. */
-.metodo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-left:1px solid var(--line-soft);
+/* 2026-08-31 — come per .servizi: niente cornice esterna, filetti solo fra le
+   celle. A 4 colonne il bordo destro cade su 4n; a 2 colonne (sotto i 1100px)
+   su 2n — l'override sta nella media query in fondo. */
+.metodo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
   border-top:1px solid var(--line)}
 .passo{min-width:0;border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);
   padding:clamp(20px,1.9vw,30px);display:flex;flex-direction:column;gap:14px;
   transition:background .4s var(--ease)}
+.passo:nth-child(4n){border-right:0}
 .passo:hover{background:rgba(255,255,255,.02)}
 .passo__no{font-family:var(--ff-m);font-size:.72rem;letter-spacing:.12em;color:var(--red)}
 /* 2026-08-30 — h3 e non piu' h4: sopra c'e' l'h2 della sezione e non c'e'
@@ -1156,7 +1168,8 @@ html:not(.js) .scheda__apri,html:not(.js) .indietro{display:none}
    il suo svg e' width:100% e dentro una cella larga si gonfia */
 .passo__fig .tlv-heart{width:44px;height:44px;flex:none}
 .passo__fig .tl__visual{width:100%;max-width:100%;min-height:0}
-@media(max-width:1100px){.metodo{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1100px){.metodo{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .passo:nth-child(2n){border-right:0}}
 @media(max-width:520px){
   .passo__fig{height:150px}
   .passo__fig > *{transform:scale(.66)}
